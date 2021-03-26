@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Authors>Stan Drapkin</Authors>
+    <Company>https://SecurityDriven.NET/inferno</Company>
+    <Copyright>Copyright (c) 2021 Stan Drapkin</Copyright>
+    <RepositoryUrl>https://github.com/sdrapkin/SecurityDriven.Core</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>1.0.0.0</Version>
+  </PropertyGroup>
+
+</Project>
