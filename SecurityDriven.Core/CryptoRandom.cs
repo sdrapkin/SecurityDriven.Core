@@ -7,7 +7,7 @@ using System.Threading;
 namespace SecurityDriven.Core
 {
 	/// <summary>Implements a fast, *thread-safe*, cryptographically-strong pseudo-random number generator.</summary>
-	public partial class CryptoRandom
+	public partial class CryptoRandom : System.Random
 	{
 		public const int BYTE_CACHE_SIZE = 4096; // 4k buffer seems to work best (empirical experimentation).
 		public const int REQUEST_CACHE_LIMIT = BYTE_CACHE_SIZE / 4; //  Must be less than BYTE_CACHE_SIZE.
@@ -17,8 +17,12 @@ namespace SecurityDriven.Core
 		readonly byte[][] _byteCaches = new byte[Environment.ProcessorCount][];
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public CryptoRandom()
+		public CryptoRandom() : base(Seed: int.MinValue)
 		{
+			// Minimize the wasted time of calling default System.Random base ctor.
+			// We can't avoid calling at least some base ctor, ie. some compute is wasted anyway.
+			// That's the price of inheriting from System.Random (doesn't implement an interface).
+
 			for (int i = 0, procCount = Environment.ProcessorCount; i < procCount; ++i)
 			{
 				_byteCachePositions[i << PADDING_FACTOR_POWER_OF2] = BYTE_CACHE_SIZE;
