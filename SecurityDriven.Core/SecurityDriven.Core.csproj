@@ -10,4 +10,17 @@
     <Version>1.0.0.0</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Code\SecurityDriven.Core\SecurityDriven.Core\SecurityDriven.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Code\SecurityDriven.Core\SecurityDriven.Core\SecurityDriven.Core.xml</DocumentationFile>
+  </PropertyGroup>
+	
+	<ItemGroup>
+		<Compile Update="CryptoRandom.overrides.cs">
+			<DependentUpon>CryptoRandom.cs</DependentUpon>
+		</Compile>	
+	</ItemGroup>
 </Project>
