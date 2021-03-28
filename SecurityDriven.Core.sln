@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityDriven.Core", "SecurityDriven.Core\SecurityDriven.Core.csproj", "{483F74EF-B9AF-477B-A8E8-E8B81D326536}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F38B1F0E-F5E1-4BBB-AF84-3F75C5BA3037}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityDriven.Core.Tests", "SecurityDriven.Core.Tests\SecurityDriven.Core.Tests.csproj", "{6D193195-134E-4549-8E56-407DB8032B01}"
 EndProject
