@@ -38,10 +38,34 @@ namespace SecurityDriven.Core.Bench
 					{
 						var data = default(TestStruct);
 						var span = Utils.AsSpan(ref data);
-						cr.FillSpan(span);
+						cr.NextBytes(span);
 					}
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(Utils.AsSpan) + " " + nameof(cr.FillSpan)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} {nameof(Utils.AsSpan) + " " + nameof(cr.NextBytes)} {cr.GetType().Name}".Dump();
+				}
+
+				{
+					sw.Restart();
+					for (var k = 0L; k < ITER; ++k)
+					//Parallel.For(0L, ITER, i =>
+					{
+						var data = default(TestStruct);
+						cr.FillStruct(ref data);
+					}
+					sw.Stop();
+					$"{sw.Elapsed} {nameof(cr.FillStruct)} {cr.GetType().Name}".Dump();
+				}
+
+				{
+					sw.Restart();
+					for (var k = 0L; k < ITER; ++k)
+					//Parallel.For(0L, ITER, i =>
+					{
+						var data = default(TestStruct);
+						CryptoRandom.Instance.FillStruct(ref data);
+					}
+					sw.Stop();
+					$"{sw.Elapsed} {nameof(CryptoRandom)}.{nameof(CryptoRandom.Instance)}.{nameof(CryptoRandom.FillStruct)} {cr.GetType().Name}".Dump();
 				}
 
 				{
