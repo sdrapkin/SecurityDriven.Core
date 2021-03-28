@@ -10,7 +10,7 @@ namespace SecurityDriven.Core
 		/// <summary>Per-processor byte cache size.</summary>
 		public const int BYTE_CACHE_SIZE = 4096; // 4k buffer seems to work best (empirical experimentation).
 		/// <summary>Requests larger than this limit will bypass the cache.</summary>
-		public const int REQUEST_CACHE_LIMIT = BYTE_CACHE_SIZE / 4; //  Must be less than BYTE_CACHE_SIZE.
+		public const int REQUEST_CACHE_LIMIT = BYTE_CACHE_SIZE / 4; // Must be less than BYTE_CACHE_SIZE.
 		const int PADDING_FACTOR_POWER_OF2 = 4; // ([64-byte cache line] / [4-byte int]) is 16, which is 2^4.
 
 		readonly int[] _byteCachePositions = new int[Environment.ProcessorCount << PADDING_FACTOR_POWER_OF2];
