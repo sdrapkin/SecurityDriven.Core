@@ -10,6 +10,7 @@ namespace SecurityDriven.Core
 	{
 		//references: https://github.com/dotnet/runtime/tree/main/src/libraries/System.Private.CoreLib/src/System Random*.cs
 		//references: https://source.dot.net/#System.Private.CoreLib Random*.cs 
+
 		#region System.Random overrides
 
 		/// <summary>Returns a non-negative random integer.</summary>
@@ -21,7 +22,7 @@ namespace SecurityDriven.Core
 			Span<byte> span4 = stackalloc byte[sizeof(int)];
 			do
 			{
-				FillSpan(span4);
+				NextBytes(span4);
 				result = Unsafe.As<byte, int>(ref MemoryMarshal.GetReference(span4)) & 0x7FFF_FFFF; // Mask away the sign bit
 			} while (result == int.MaxValue); // the range must be [0, int.MaxValue)
 			return result;
@@ -74,7 +75,7 @@ namespace SecurityDriven.Core
 
 			do
 			{
-				FillSpan(span4);
+				NextBytes(span4);
 				result &= mask;
 			} while (result > range);
 			return minValue + (int)result;
@@ -86,7 +87,7 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override void NextBytes(byte[] buffer)
 		{
-			FillSpan(new Span<byte>(buffer));
+			NextBytes(new Span<byte>(buffer));
 		}//NextBytes(byte[])
 
 		/// <summary>Fills the elements of a specified span of bytes with random numbers.</summary>
@@ -94,7 +95,44 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override void NextBytes(Span<byte> buffer)
 		{
-			FillSpan(buffer);
+			int count = buffer.Length;
+			if (count > REQUEST_CACHE_LIMIT)
+			{
+				RandomNumberGenerator.Fill(buffer);
+				return;
+			}
+
+			int procId = Environment.ProcessorCount == 1 ? 0 : Thread.GetCurrentProcessorId();
+			byte[] byteCacheLocal = _byteCaches[procId];
+
+			if (byteCacheLocal == null)
+			{
+				Interlocked.CompareExchange(ref Unsafe.As<byte[], object>(ref _byteCaches[procId]), new byte[BYTE_CACHE_SIZE], null);
+				byteCacheLocal = _byteCaches[procId];
+			}
+
+			ref int byteCachePositionLocalRef = ref _byteCachePositions[procId << PADDING_FACTOR_POWER_OF2];
+			bool lockTaken = false;
+
+			try
+			{
+				Monitor.Enter(byteCacheLocal, ref lockTaken);
+				if (byteCachePositionLocalRef + count > BYTE_CACHE_SIZE)
+				{
+					RandomNumberGenerator.Fill(new Span<byte>(byteCacheLocal));
+					byteCachePositionLocalRef = 0;
+				}
+
+				ref byte byteCacheLocalStartRef = ref byteCacheLocal[byteCachePositionLocalRef];
+				Unsafe.CopyBlockUnaligned(destination: ref MemoryMarshal.GetReference(buffer), source: ref byteCacheLocalStartRef, byteCount: (uint)count);
+				Unsafe.InitBlockUnaligned(startAddress: ref byteCacheLocalStartRef, value: 0, byteCount: (uint)count);
+
+				byteCachePositionLocalRef += count;
+			}
+			finally
+			{
+				if (lockTaken) Monitor.Exit(byteCacheLocal);
+			}
 		}//NextBytes(Span<byte>)
 
 		/// <summary>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</summary>
@@ -104,8 +142,8 @@ namespace SecurityDriven.Core
 		{
 			const double max = 1L << 53; // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 
-			Span<byte> span8 = stackalloc byte[sizeof(ulong)];
-			FillSpan(span8);
+			Span<byte> span8 = stackalloc byte[sizeof(double)];
+			NextBytes(span8);
 
 			return (Unsafe.As<byte, ulong>(ref MemoryMarshal.GetReference(span8)) >> 11) / max;
 		}//NextDouble()
@@ -117,26 +155,6 @@ namespace SecurityDriven.Core
 		{
 			return NextDouble();
 		}//Sample()
-		#endregion
-
-		#region New APIs
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public long NextInt64()
-		{
-			throw null;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public long NextInt64(long maxValue)
-		{
-			throw null;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public long NextInt64(long minValue, long maxValue)
-		{
-			throw null;
-		}
 		#endregion
 
 		static void ThrowNewArgumentOutOfRangeException(string paramName) => throw new ArgumentOutOfRangeException(paramName: paramName);
