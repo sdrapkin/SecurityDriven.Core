@@ -17,6 +17,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>C:\Code\SecurityDriven.Core\SecurityDriven.Core\SecurityDriven.Core.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="*.xml" />
+  </ItemGroup>
 	
 	<ItemGroup>
 		<Compile Update="CryptoRandom.overrides.cs">
