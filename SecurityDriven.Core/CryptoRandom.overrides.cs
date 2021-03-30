@@ -102,32 +102,36 @@ namespace SecurityDriven.Core
 				return;
 			}
 
-			int procId = Environment.ProcessorCount == 1 ? 0 : Thread.GetCurrentProcessorId();
-			byte[] byteCacheLocal = _byteCaches[procId];
+			int procId = 0;
+			if (Environment.ProcessorCount > 1)
+				procId = Thread.GetCurrentProcessorId();
 
+			ByteCache byteCacheLocal = _byteCaches[procId];
 			if (byteCacheLocal == null)
 			{
-				Interlocked.CompareExchange(ref Unsafe.As<byte[], object>(ref _byteCaches[procId]), new byte[BYTE_CACHE_SIZE], null);
+				Interlocked.CompareExchange(ref Unsafe.As<ByteCache, object>(ref _byteCaches[procId]), new ByteCache(), null);
 				byteCacheLocal = _byteCaches[procId];
 			}
 
-			ref int byteCachePositionLocalRef = ref _byteCachePositions[procId << PADDING_FACTOR_POWER_OF2];
 			bool lockTaken = false;
-
 			try
 			{
 				Monitor.Enter(byteCacheLocal, ref lockTaken);
-				if (byteCachePositionLocalRef + count > BYTE_CACHE_SIZE)
+
+				byte[] byteCacheBytesLocal = byteCacheLocal.Bytes;
+				int byteCachePositionLocal = byteCacheLocal.Position;
+
+				if (byteCachePositionLocal + count > BYTE_CACHE_SIZE)
 				{
-					RandomNumberGenerator.Fill(new Span<byte>(byteCacheLocal));
-					byteCachePositionLocalRef = 0;
+					RandomNumberGenerator.Fill(new Span<byte>(byteCacheBytesLocal));
+					byteCachePositionLocal = 0;
 				}
 
-				ref byte byteCacheLocalStartRef = ref byteCacheLocal[byteCachePositionLocalRef];
-				Unsafe.CopyBlockUnaligned(destination: ref MemoryMarshal.GetReference(buffer), source: ref byteCacheLocalStartRef, byteCount: (uint)count);
-				Unsafe.InitBlockUnaligned(startAddress: ref byteCacheLocalStartRef, value: 0, byteCount: (uint)count);
+				byteCacheLocal.Position = byteCachePositionLocal + count; // ensure we advance the position before touching any data, in case anything throws
 
-				byteCachePositionLocalRef += count;
+				ref byte byteCacheLocalStart = ref byteCacheBytesLocal[byteCachePositionLocal];
+				Unsafe.CopyBlockUnaligned(destination: ref MemoryMarshal.GetReference(buffer), source: ref byteCacheLocalStart, byteCount: (uint)count);
+				Unsafe.InitBlockUnaligned(startAddress: ref byteCacheLocalStart, value: 0, byteCount: (uint)count);
 			}
 			finally
 			{

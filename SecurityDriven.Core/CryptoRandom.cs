@@ -11,10 +11,14 @@ namespace SecurityDriven.Core
 		public const int BYTE_CACHE_SIZE = 4096; // 4k buffer seems to work best (empirical experimentation).
 		/// <summary>Requests larger than this limit will bypass the cache.</summary>
 		public const int REQUEST_CACHE_LIMIT = BYTE_CACHE_SIZE / 4; // Must be less than BYTE_CACHE_SIZE.
-		const int PADDING_FACTOR_POWER_OF2 = 4; // ([64-byte cache line] / [4-byte int]) is 16, which is 2^4.
 
-		readonly int[] _byteCachePositions = new int[Environment.ProcessorCount << PADDING_FACTOR_POWER_OF2];
-		readonly byte[][] _byteCaches = new byte[Environment.ProcessorCount][];
+		readonly ByteCache[] _byteCaches = new ByteCache[Environment.ProcessorCount];
+
+		internal sealed class ByteCache
+		{
+			public byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE);
+			public int Position = BYTE_CACHE_SIZE;
+		}// internal class ByteCache
 
 		/// <summary>Initializes a new instance of <see cref="CryptoRandom"/>.</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -23,11 +27,6 @@ namespace SecurityDriven.Core
 			// Minimize the wasted time of calling default System.Random base ctor.
 			// We can't avoid calling at least some base ctor, ie. some compute is wasted anyway.
 			// That's the price of inheriting from System.Random (doesn't implement an interface).
-
-			for (int i = 0, procCount = Environment.ProcessorCount; i < procCount; ++i)
-			{
-				_byteCachePositions[i << PADDING_FACTOR_POWER_OF2] = BYTE_CACHE_SIZE;
-			}
 		}//ctor
 
 		/// <summary>Shared instance of <see cref="CryptoRandom"/>.</summary>
