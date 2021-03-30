@@ -41,7 +41,7 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public byte[] NextBytes(int count)
 		{
-			byte[] bytes = new byte[count];
+			byte[] bytes = GC.AllocateUninitializedArray<byte>(count);
 			NextBytes(new Span<byte>(bytes));
 			return bytes;
 		}//NextBytes(count)
