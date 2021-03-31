@@ -30,8 +30,10 @@ namespace SecurityDriven.Core
 		}//ctor
 
 		/// <summary>Shared instance of <see cref="CryptoRandom"/>.</summary>
-		public static CryptoRandom Instance => CryptoRandomSingleton.Instance;
-		static class CryptoRandomSingleton { public static readonly CryptoRandom Instance = new(); }
+		public static CryptoRandom Instance { get; private set; }
+
+		[ModuleInitializer]
+		internal static void SecurityDrivenCore_ModuleInitializer() => Instance = new();
 
 		// reference: https://github.com/dotnet/runtime/blob/7795971839be34099b07595fdcf47b95f048a730/src/libraries/System.Security.Cryptography.Algorithms/src/System/Security/Cryptography/RandomNumberGenerator.cs#L161
 		/// <summary>Creates an array of bytes with a cryptographically strong random sequence of values.</summary>
