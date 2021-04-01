@@ -11,6 +11,19 @@ namespace SecurityDriven.Core
 		//references: https://github.com/dotnet/runtime/tree/main/src/libraries/System.Private.CoreLib/src/System Random*.cs
 		//references: https://source.dot.net/#System.Private.CoreLib Random*.cs 
 
+		/// <summary>Per-processor byte cache size.</summary>
+		public const int BYTE_CACHE_SIZE = 4096; // 4k buffer seems to work best (empirical experimentation).
+		/// <summary>Requests larger than this limit will bypass the cache.</summary>
+		public const int REQUEST_CACHE_LIMIT = BYTE_CACHE_SIZE / 4; // Must be less than BYTE_CACHE_SIZE.
+
+		readonly ByteCache[] _byteCaches = new ByteCache[Environment.ProcessorCount];
+
+		internal sealed class ByteCache
+		{
+			public byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE);
+			public int Position = BYTE_CACHE_SIZE;
+		}// internal class ByteCache
+
 		#region System.Random overrides
 
 		/// <summary>Returns a non-negative random integer.</summary>

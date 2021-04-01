@@ -7,19 +7,6 @@ namespace SecurityDriven.Core
 	/// <summary>Implements a fast, *thread-safe*, cryptographically-strong pseudo-random number generator. Inherits from <see cref="System.Random"/>.</summary>
 	public partial class CryptoRandom : System.Random
 	{
-		/// <summary>Per-processor byte cache size.</summary>
-		public const int BYTE_CACHE_SIZE = 4096; // 4k buffer seems to work best (empirical experimentation).
-		/// <summary>Requests larger than this limit will bypass the cache.</summary>
-		public const int REQUEST_CACHE_LIMIT = BYTE_CACHE_SIZE / 4; // Must be less than BYTE_CACHE_SIZE.
-
-		readonly ByteCache[] _byteCaches = new ByteCache[Environment.ProcessorCount];
-
-		internal sealed class ByteCache
-		{
-			public byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE);
-			public int Position = BYTE_CACHE_SIZE;
-		}// internal class ByteCache
-
 		/// <summary>Initializes a new instance of <see cref="CryptoRandom"/>.</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CryptoRandom() : base(Seed: int.MinValue)
@@ -116,49 +103,6 @@ namespace SecurityDriven.Core
 			} while (result > range);
 			return minValue + (long)result;
 		}//NextInt64(minValue, maxValue)
-		#endregion
-
-		#region CryptoRandom APIs
-		/// <summary>Fills an unmanaged struct with cryptographically strong random bytes.</summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="structure"></param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FillStruct<T>(ref T structure) where T : unmanaged
-		{
-			NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref structure), Utils.StructSizer<T>.Size));
-		}//FillStruct<T>
-
-		/// <summary>
-		/// Returns new Guid well-suited to be used as a SQL-Server clustered key.
-		/// Guid structure is [8 random bytes][8 bytes of SQL-Server-ordered DateTime.UtcNow].
-		/// Each Guid should be sequential within 100-nanoseconds UtcNow precision limits.
-		/// 64-bit cryptographic strength provides reasonable unguessability and protection against online brute-force attacks.
-		/// </summary>
-		/// <returns>Guid for SQL-Server clustered key.</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Guid NewSqlServerGuid()
-		{
-			Span<byte> guidSpan = stackalloc byte[16];
-			NextBytes(guidSpan.Slice(0, 8));
-
-			DateTime utcNow = DateTime.UtcNow;
-			Span<byte> ticksSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<DateTime, byte>(ref utcNow), 8);
-
-			// based on Microsoft SqlGuid.cs
-			// https://github.com/microsoft/referencesource/blob/5697c29004a34d80acdaf5742d7e699022c64ecd/System.Data/System/Data/SQLTypes/SQLGuid.cs
-
-			guidSpan[10] = ticksSpan[7];
-			guidSpan[11] = ticksSpan[6];
-			guidSpan[12] = ticksSpan[5];
-			guidSpan[13] = ticksSpan[4];
-			guidSpan[14] = ticksSpan[3];
-			guidSpan[15] = ticksSpan[2];
-
-			guidSpan[08] = ticksSpan[1];
-			guidSpan[09] = ticksSpan[0];
-
-			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
-		}//NewSqlServerGuid()
 		#endregion
 
 	}//class CryptoRandom
