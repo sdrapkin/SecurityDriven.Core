@@ -33,6 +33,9 @@ namespace SecurityDriven.Core.Bench
 			const bool IS_SEQUENTIAL = true;
 			const bool IS_PARALLEL = false;
 
+			IS_SEQUENTIAL.Dump(nameof(IS_SEQUENTIAL));
+			IS_PARALLEL.Dump(nameof(IS_PARALLEL));
+
 			for (int j = 0; j < REPS; ++j)
 			{
 				{
@@ -73,20 +76,20 @@ namespace SecurityDriven.Core.Bench
 					sw.Restart();
 					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
 					{
-						Guid.NewGuid();
+						cr.NewRandomGuid();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {typeof(Guid).FullName}.{nameof(Guid.NewGuid)}".Dump();
+					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(CryptoRandomExtensions.NewRandomGuid)}".Dump();
 				}
 
 				{
 					sw.Restart();
 					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
 					{
-						cr.NewRandomGuid();
+						Guid.NewGuid();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(CryptoRandomExtensions.NewRandomGuid)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} {typeof(Guid).FullName}.{nameof(Guid.NewGuid)}".Dump();
 				}
 
 				{
