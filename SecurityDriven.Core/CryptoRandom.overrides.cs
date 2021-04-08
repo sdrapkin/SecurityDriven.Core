@@ -86,6 +86,14 @@ namespace SecurityDriven.Core
 			_impl.NextBytes(new Span<byte>(buffer));
 		}//NextBytes(byte[])
 
+		/// <summary>Fills the elements of a specified span of bytes with random numbers.</summary>
+		/// <param name="buffer">The array to be filled with random numbers.</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override void NextBytes(Span<byte> buffer)
+		{
+			_impl.NextBytes(buffer);
+		}//NextBytes(Span<byte>)
+
 		/// <summary>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</summary>
 		/// <returns>A double-precision floating point number that is greater than or equal to 0.0, and less than 1.0.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

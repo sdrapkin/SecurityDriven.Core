@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace SecurityDriven.Core
 {
-	public sealed class SeededCryptoRandom : CryptoRandom.CryptoRandomImplBase
+	public sealed class SeededCryptoRandom : CryptoRandom.CryptoRandomBase
 	{
 		public const int SEEDKEY_SIZE = 32;
 		public const int BUFFER_SIZE = SEEDKEY_SIZE + (1024 * 8 - SEEDKEY_SIZE); // must be a multiple of AES_BLOCK_SIZE, and greater than SEEDKEY_SIZE
@@ -85,7 +85,6 @@ namespace SecurityDriven.Core
 			byte[] ctBuffer = _ctBuffer;
 
 			bool lockTaken = false;
-
 			try
 			{
 				Monitor.Enter(ctBuffer, ref lockTaken);
@@ -112,10 +111,7 @@ namespace SecurityDriven.Core
 			}
 			finally
 			{
-				if (lockTaken)
-				{
-					Monitor.Exit(ctBuffer);
-				}
+				if (lockTaken) Monitor.Exit(ctBuffer);
 			}
 
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]

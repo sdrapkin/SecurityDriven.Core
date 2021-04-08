@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace SecurityDriven.Core
 {
-	/// <summary>Implements a fast, *thread-safe*, cryptographically-strong pseudo-random number generator. Inherits from <see cref="System.Random"/>.</summary>
+	/// <summary>Implements a fast, *thread-safe*, cryptographically-strong random number generator. Inherits from <see cref="System.Random"/>.</summary>
 	public partial class CryptoRandom : System.Random
 	{
 		/// <summary>Initializes a new instance of <see cref="CryptoRandom"/>.</summary>
@@ -40,7 +40,7 @@ namespace SecurityDriven.Core
 		[ModuleInitializer]
 		internal static void SecurityDrivenCore_ModuleInitializer() => Instance = new();
 
-		readonly CryptoRandomImplBase _impl;
+		readonly CryptoRandomBase _impl;
 
 		// reference: https://github.com/dotnet/runtime/blob/7795971839be34099b07595fdcf47b95f048a730/src/libraries/System.Security.Cryptography.Algorithms/src/System/Security/Cryptography/RandomNumberGenerator.cs#L161
 		/// <summary>Creates an array of bytes with a cryptographically strong random sequence of values.</summary>
@@ -53,7 +53,6 @@ namespace SecurityDriven.Core
 			_impl.NextBytes(new Span<byte>(bytes));
 			return bytes;
 		}//NextBytes(count)
-
 
 		#region New System.Random APIs
 		/// <summary>Returns a non-negative random integer.</summary>
@@ -126,7 +125,7 @@ namespace SecurityDriven.Core
 		}//NextInt64(minValue, maxValue)
 		#endregion
 
-		public abstract class CryptoRandomImplBase
+		public abstract class CryptoRandomBase
 		{
 			public abstract void NextBytes(Span<byte> buffer);
 		}

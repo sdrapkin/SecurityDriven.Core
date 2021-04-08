@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace SecurityDriven.Core
 {
-	public sealed class RNGCryptoRandom : CryptoRandom.CryptoRandomImplBase
+	public sealed class RNGCryptoRandom : CryptoRandom.CryptoRandomBase
 	{
 		//references: https://github.com/dotnet/runtime/tree/main/src/libraries/System.Private.CoreLib/src/System Random*.cs
 		//references: https://source.dot.net/#System.Private.CoreLib Random*.cs 
