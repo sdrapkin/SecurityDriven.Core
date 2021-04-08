@@ -10,14 +10,39 @@ namespace SecurityDriven.Core.Bench
 	{
 		static void Main(string[] args)
 		{
+			const bool TEST_SEEDED = false;
+			if (TEST_SEEDED)
+			{
+				var seedkey = new byte[SeededCryptoRandom.SEEDKEY_SIZE];
+				var seeded = new SeededCryptoRandom(seedkey);
+
+				Span<byte> data = new byte[256];
+
+				seeded.Reseed(seedkey);
+				seeded.NextBytes(data);
+				Convert.ToHexString(data).Dump();
+
+				data.Clear();
+				//seeded = new SeededCryptoRandomImpl(seedkey); 
+				seeded.Reseed(seedkey);
+				for (int i = 0; i < data.Length; ++i)
+				{
+					seeded.NextBytes(data.Slice(i, 1));
+					Convert.ToHexString(data.Slice(0, i + 1)).Dump(); Console.WriteLine("====================");
+				}
+
+				return;
+			}
 			var sw = new Stopwatch();
 			const long ITER = 5_000_000L * 2L;
 
 			$"{nameof(Environment.ProcessorCount)}: {Environment.ProcessorCount}".Dump();
-			$"{nameof(CryptoRandom.BYTE_CACHE_SIZE)}: {CryptoRandom.BYTE_CACHE_SIZE}".Dump();
-			$"{nameof(CryptoRandom.REQUEST_CACHE_LIMIT)}: {CryptoRandom.REQUEST_CACHE_LIMIT}".Dump();
+			$"{nameof(RNGCryptoRandom.BYTE_CACHE_SIZE)}: {RNGCryptoRandom.BYTE_CACHE_SIZE}".Dump();
+			$"{nameof(RNGCryptoRandom.REQUEST_CACHE_LIMIT)}: {RNGCryptoRandom.REQUEST_CACHE_LIMIT}".Dump();
 			$"{nameof(TestStruct)} Size: {Utils.StructSizer<TestStruct>.Size}\n".Dump();
 
+			const bool IS_SEQUENTIAL = false;
+			const bool IS_PARALLEL = true;
 			var cr = new CryptoRandom();
 
 			for (int _ = 0; _ < 4; ++_)
@@ -30,8 +55,6 @@ namespace SecurityDriven.Core.Bench
 			//return;
 			const int REPS = 6;
 
-			const bool IS_SEQUENTIAL = true;
-			const bool IS_PARALLEL = false;
 
 			IS_SEQUENTIAL.Dump(nameof(IS_SEQUENTIAL));
 			IS_PARALLEL.Dump(nameof(IS_PARALLEL));
