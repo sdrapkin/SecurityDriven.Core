@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -14,13 +15,32 @@ namespace SecurityDriven.Core
 			// Minimize the wasted time of calling default System.Random base ctor.
 			// We can't avoid calling at least some base ctor, ie. some compute is wasted anyway.
 			// That's the price of inheriting from System.Random (doesn't implement an interface).
+			_impl = new RNGCryptoRandom();
 		}//ctor
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public CryptoRandom(ReadOnlySpan<byte> seedKey) : base(Seed: int.MinValue)
+		{
+			_impl = new SeededCryptoRandom(seedKey);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public CryptoRandom(int Seed) : base(Seed: int.MinValue)
+		{
+			Span<byte> seedKey = stackalloc byte[SeededCryptoRandom.SEEDKEY_SIZE];
+			Unsafe.WriteUnaligned<int>(ref seedKey[0],
+				BitConverter.IsLittleEndian ? Seed : BinaryPrimitives.ReverseEndianness(Seed));
+
+			_impl = new SeededCryptoRandom(seedKey);
+		}
 
 		/// <summary>Shared instance of <see cref="CryptoRandom"/>.</summary>
 		public static CryptoRandom Instance { get; private set; }
 
 		[ModuleInitializer]
 		internal static void SecurityDrivenCore_ModuleInitializer() => Instance = new();
+
+		readonly CryptoRandomImplBase _impl;
 
 		// reference: https://github.com/dotnet/runtime/blob/7795971839be34099b07595fdcf47b95f048a730/src/libraries/System.Security.Cryptography.Algorithms/src/System/Security/Cryptography/RandomNumberGenerator.cs#L161
 		/// <summary>Creates an array of bytes with a cryptographically strong random sequence of values.</summary>
@@ -30,9 +50,10 @@ namespace SecurityDriven.Core
 		public byte[] NextBytes(int count)
 		{
 			byte[] bytes = GC.AllocateUninitializedArray<byte>(count);
-			NextBytes(new Span<byte>(bytes));
+			_impl.NextBytes(new Span<byte>(bytes));
 			return bytes;
 		}//NextBytes(count)
+
 
 		#region New System.Random APIs
 		/// <summary>Returns a non-negative random integer.</summary>
@@ -44,7 +65,7 @@ namespace SecurityDriven.Core
 			Span<byte> span8 = stackalloc byte[sizeof(long)];
 			do
 			{
-				NextBytes(span8);
+				_impl.NextBytes(span8);
 				result = Unsafe.As<byte, long>(ref MemoryMarshal.GetReference(span8)) & 0x7FFF_FFFF_FFFF_FFFF; // Mask away the sign bit
 			} while (result == long.MaxValue); // the range must be [0, int.MaxValue)
 			return result;
@@ -98,12 +119,17 @@ namespace SecurityDriven.Core
 
 			do
 			{
-				NextBytes(span8);
+				_impl.NextBytes(span8);
 				result &= mask;
 			} while (result > range);
 			return minValue + (long)result;
 		}//NextInt64(minValue, maxValue)
 		#endregion
+
+		public abstract class CryptoRandomImplBase
+		{
+			public abstract void NextBytes(Span<byte> buffer);
+		}
 
 	}//class CryptoRandom
 }//ns
