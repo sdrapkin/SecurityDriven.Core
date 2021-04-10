@@ -10,11 +10,11 @@ namespace SecurityDriven.Core.Bench
 	{
 		static void Main(string[] args)
 		{
-			const bool TEST_SEEDED = false;
-			if (TEST_SEEDED)
+			const bool SEEDED_TEST = true;
+			if (SEEDED_TEST)
 			{
-				var seedkey = new byte[SeededCryptoRandom.SEEDKEY_SIZE];
-				var seeded = new SeededCryptoRandom(seedkey);
+				var seedkey = new byte[CryptoRandom.Params.Seeded.SEEDKEY_SIZE];
+				var seeded = new CryptoRandom(seedkey);
 
 				Span<byte> data = new byte[256];
 
@@ -37,8 +37,8 @@ namespace SecurityDriven.Core.Bench
 			const long ITER = 5_000_000L * 2L;
 
 			$"{nameof(Environment.ProcessorCount)}: {Environment.ProcessorCount}".Dump();
-			$"{nameof(RNGCryptoRandom.BYTE_CACHE_SIZE)}: {RNGCryptoRandom.BYTE_CACHE_SIZE}".Dump();
-			$"{nameof(RNGCryptoRandom.REQUEST_CACHE_LIMIT)}: {RNGCryptoRandom.REQUEST_CACHE_LIMIT}".Dump();
+			$"{nameof(CryptoRandom.Params.RNG.BYTE_CACHE_SIZE)}: {CryptoRandom.Params.RNG.BYTE_CACHE_SIZE}".Dump();
+			$"{nameof(CryptoRandom.Params.RNG.REQUEST_CACHE_LIMIT)}: {CryptoRandom.Params.RNG.REQUEST_CACHE_LIMIT}".Dump();
 			$"{nameof(TestStruct)} Size: {Utils.StructSizer<TestStruct>.Size}\n".Dump();
 
 			const bool IS_SEQUENTIAL = false;
