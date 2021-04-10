@@ -52,8 +52,8 @@ namespace SecurityDriven.Core
 		public CryptoRandom(int Seed) : base(Seed: int.MinValue)
 		{
 			Span<byte> seedKey = stackalloc byte[SeededCryptoRandom.SEEDKEY_SIZE];
-			Unsafe.WriteUnaligned<int>(ref seedKey[0],
-				BitConverter.IsLittleEndian ? Seed : BinaryPrimitives.ReverseEndianness(Seed));
+			Unsafe.WriteUnaligned<int>(destination: ref seedKey[0],
+				value: BitConverter.IsLittleEndian ? Seed : BinaryPrimitives.ReverseEndianness(Seed));
 
 			_impl = new SeededCryptoRandom(seedKey);
 		}
