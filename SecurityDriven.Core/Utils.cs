@@ -56,7 +56,7 @@ namespace SecurityDriven.Core
 		#region non-public
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static void AsStruct_Throw_ArgumentOutOfRangeException<T>() =>
-			  throw new ArgumentOutOfRangeException("span", typeof(T).FullName + " is larger than span.Length.");
+			  throw new ArgumentOutOfRangeException(paramName: "span", message: typeof(T).FullName + " is larger than span.Length.");
 		#endregion
 	}//class Utils
 }//ns
