@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace SecurityDriven.Core
 {
-	public sealed class RNGCryptoRandom : CryptoRandom.CryptoRandomBase
+	internal sealed class RNGCryptoRandom : CryptoRandom.CryptoRandomBase
 	{
 		//references: https://github.com/dotnet/runtime/tree/main/src/libraries/System.Private.CoreLib/src/System Random*.cs
 		//references: https://source.dot.net/#System.Private.CoreLib Random*.cs 
@@ -72,5 +72,10 @@ namespace SecurityDriven.Core
 				if (lockTaken) Monitor.Exit(byteCacheLocal);
 			}
 		}//NextBytes(Span<byte>)
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override void Reseed(ReadOnlySpan<byte> seedKey) =>
+			throw new NotImplementedException(message: "Reseed is only implemented for seeded construction of CryptoRandom.");
+
 	}//class RNGCryptoRandom
 }//ns

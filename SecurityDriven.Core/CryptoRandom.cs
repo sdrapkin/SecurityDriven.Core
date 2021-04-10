@@ -8,6 +8,30 @@ namespace SecurityDriven.Core
 	/// <summary>Implements a fast, *thread-safe*, cryptographically-strong random number generator. Inherits from <see cref="System.Random"/>.</summary>
 	public partial class CryptoRandom : System.Random
 	{
+		#region static Params
+		/// <summary>Internal constants for advanced users.</summary>
+		public static class Params
+		{
+			/// <summary><see cref="RNGCryptoRandom"/> constants.</summary>
+			public static class RNG
+			{
+				/// <summary>Per-processor byte cache size.</summary>
+				public const int BYTE_CACHE_SIZE = RNGCryptoRandom.BYTE_CACHE_SIZE;
+				/// <summary>Requests larger than this limit will bypass the cache.</summary>
+				public const int REQUEST_CACHE_LIMIT = RNGCryptoRandom.REQUEST_CACHE_LIMIT;
+			}//class RNG
+
+			/// <summary><see cref="SeededCryptoRandom"/> constants.</summary>
+			public static class Seeded
+			{
+				/// <summary>AES key size.</summary>
+				public const int SEEDKEY_SIZE = SeededCryptoRandom.SEEDKEY_SIZE;
+				/// <summary>Ciphertext buffer size.</summary>
+				public const int BUFFER_SIZE = SeededCryptoRandom.BUFFER_SIZE;
+			}// class Seeded
+		}// static class Params
+		#endregion
+
 		/// <summary>Initializes a new instance of <see cref="CryptoRandom"/>.</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CryptoRandom() : base(Seed: int.MinValue)
@@ -123,11 +147,16 @@ namespace SecurityDriven.Core
 			} while (result > range);
 			return minValue + (long)result;
 		}//NextInt64(minValue, maxValue)
+
+		/// <summary>Reseeds a seeded instance of <see cref="CryptoRandom"/>.</summary>
+		/// <param name="seedKey"></param>
+		public void Reseed(ReadOnlySpan<byte> seedKey) => _impl.Reseed(seedKey);
 		#endregion
 
-		public abstract class CryptoRandomBase
+		internal abstract class CryptoRandomBase
 		{
 			public abstract void NextBytes(Span<byte> buffer);
+			public abstract void Reseed(ReadOnlySpan<byte> seedKey);
 		}
 
 	}//class CryptoRandom

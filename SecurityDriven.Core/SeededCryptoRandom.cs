@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace SecurityDriven.Core
 {
-	public sealed class SeededCryptoRandom : CryptoRandom.CryptoRandomBase
+	internal sealed class SeededCryptoRandom : CryptoRandom.CryptoRandomBase
 	{
 		public const int SEEDKEY_SIZE = 32;
 		public const int BUFFER_SIZE = SEEDKEY_SIZE + (1024 * 8 - SEEDKEY_SIZE); // must be a multiple of AES_BLOCK_SIZE, and greater than SEEDKEY_SIZE
@@ -52,7 +52,7 @@ namespace SecurityDriven.Core
 		public SeededCryptoRandom(ReadOnlySpan<byte> seedKey)
 		{
 			if (seedKey.Length != SEEDKEY_SIZE)
-				fnThrowSeedKeyOutOfRangeException();
+				Action_Throw_SeedKeyOutOfRangeException();
 
 			_aeskey = new byte[SEEDKEY_SIZE];
 			_ctBuffer = GC.AllocateUninitializedArray<byte>(BUFFER_SIZE);
@@ -62,14 +62,14 @@ namespace SecurityDriven.Core
 		}//ctor
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		static void fnThrowSeedKeyOutOfRangeException() =>
+		static void Action_Throw_SeedKeyOutOfRangeException() =>
 			throw new ArgumentOutOfRangeException(paramName: "seedKey", message: "Seed must be " + SEEDKEY_SIZE + " bytes long.");
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Reseed(ReadOnlySpan<byte> seedKey)
+		public override void Reseed(ReadOnlySpan<byte> seedKey)
 		{
 			if (seedKey.Length != SEEDKEY_SIZE)
-				fnThrowSeedKeyOutOfRangeException();
+				Action_Throw_SeedKeyOutOfRangeException();
 
 			lock (_ctBuffer)
 			{
