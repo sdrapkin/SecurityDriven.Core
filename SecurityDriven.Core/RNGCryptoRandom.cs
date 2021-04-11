@@ -22,6 +22,13 @@ namespace SecurityDriven.Core
 		{
 			public byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE);
 			public int Position = BYTE_CACHE_SIZE;
+
+#pragma warning disable 0169 // field is never used
+			Padding paddingToAvoidFalseSharing;
+#pragma warning restore 0169
+
+			[StructLayout(LayoutKind.Sequential, Size = 64 - 2 * sizeof(long))] // cache-line is assumed to be 64 bytes
+			struct Padding { }
 		}// internal class ByteCache
 
 		/// <summary>Fills the elements of a specified span of bytes with random numbers.</summary>
