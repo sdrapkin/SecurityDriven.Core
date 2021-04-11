@@ -8,11 +8,11 @@ namespace SecurityDriven.Core
 	public static class Utils
 	{
 		#region public
-		/// <summary>Returns byte-size of unmanaged struct T.</summary>
+		/// <summary>Returns byte-size of struct T.</summary>
 		/// <typeparam name="T">struct T</typeparam>
-		public static class StructSizer<T> where T : unmanaged
+		public static class StructSizer<T> where T: struct
 		{
-			/// <summary>Returns byte-size of unmanaged struct T.</summary>
+			/// <summary>Returns byte-size of struct T.</summary>
 			public static readonly int Size = Unsafe.SizeOf<T>();
 		}//class StructSizer<T>
 
