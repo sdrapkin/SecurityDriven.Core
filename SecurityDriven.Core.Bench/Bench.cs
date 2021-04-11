@@ -8,9 +8,10 @@ namespace SecurityDriven.Core.Bench
 	using Extensions;
 	class Bench
 	{
+		static readonly CryptoRandom cr = CryptoRandom.Shared;
 		static void Main(string[] args)
 		{
-			const bool SEEDED_TEST = true;
+			const bool SEEDED_TEST = false;
 			if (SEEDED_TEST)
 			{
 				var seedkey = new byte[CryptoRandom.Params.Seeded.SEEDKEY_SIZE];
@@ -34,16 +35,15 @@ namespace SecurityDriven.Core.Bench
 				return;
 			}
 			var sw = new Stopwatch();
-			const long ITER = 5_000_000L * 2L;
 
 			$"{nameof(Environment.ProcessorCount)}: {Environment.ProcessorCount}".Dump();
 			$"{nameof(CryptoRandom.Params.RNG.BYTE_CACHE_SIZE)}: {CryptoRandom.Params.RNG.BYTE_CACHE_SIZE}".Dump();
 			$"{nameof(CryptoRandom.Params.RNG.REQUEST_CACHE_LIMIT)}: {CryptoRandom.Params.RNG.REQUEST_CACHE_LIMIT}".Dump();
 			$"{nameof(TestStruct)} Size: {Utils.StructSizer<TestStruct>.Size}\n".Dump();
 
+			const long ITER = 5_000_000L * 2L;
 			const bool IS_SEQUENTIAL = false;
 			const bool IS_PARALLEL = true;
-			var cr = new CryptoRandom();
 
 			for (int _ = 0; _ < 4; ++_)
 			{
@@ -63,7 +63,7 @@ namespace SecurityDriven.Core.Bench
 			{
 				{
 					sw.Restart();
-					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						var data = default(TestStruct);
 						var span = Utils.AsSpan(ref data);
@@ -75,7 +75,7 @@ namespace SecurityDriven.Core.Bench
 
 				{
 					sw.Restart();
-					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						var data = default(TestStruct);
 						cr.FillStruct(ref data);
@@ -86,18 +86,18 @@ namespace SecurityDriven.Core.Bench
 
 				{
 					sw.Restart();
-					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						var data = default(TestStruct);
-						CryptoRandom.Instance.FillStruct(ref data);
+						CryptoRandom.Shared.FillStruct(ref data);
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(CryptoRandom)}.{nameof(CryptoRandom.Instance)}.{nameof(CryptoRandomExtensions.FillStruct)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} {nameof(CryptoRandom)}.{nameof(CryptoRandom.Shared)}.{nameof(CryptoRandomExtensions.FillStruct)} {cr.GetType().Name}".Dump();
 				}
 
 				{
 					sw.Restart();
-					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						cr.NewRandomGuid();
 					});
@@ -107,7 +107,7 @@ namespace SecurityDriven.Core.Bench
 
 				{
 					sw.Restart();
-					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						Guid.NewGuid();
 					});
@@ -117,7 +117,7 @@ namespace SecurityDriven.Core.Bench
 
 				{
 					sw.Restart();
-					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, i =>
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						cr.NewSqlServerGuid();
 					});
@@ -135,7 +135,7 @@ namespace SecurityDriven.Core.Bench
 		{
 			if (isSequential) for (var i = 0L; i < iterations; ++i) action(i);
 
-			if (isParallel) Parallel.For(0L, iterations, i => action(i));
+			if (isParallel) Parallel.For(0L, iterations, action);
 		}//Runner()
 	}//class Bench
 
