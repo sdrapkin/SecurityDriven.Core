@@ -42,12 +42,20 @@ namespace SecurityDriven.Core
 			_impl = new RNGCryptoRandom();
 		}//ctor
 
+		/// <summary>Creates a seeded instance of <see cref="CryptoRandom"/> using 32-byte seedKey.</summary>
+		/// <param name="seedKey"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CryptoRandom(ReadOnlySpan<byte> seedKey) : base(Seed: int.MinValue)
 		{
 			_impl = new SeededCryptoRandom(seedKey);
-		}
+		}//ctor seedKey
 
+		/// <summary>
+		/// Creates a seeded instance of <see cref="CryptoRandom"/> using an int seed.
+		/// <para>OBSOLETE - use only for backwards compatibility with <see cref="System.Random"/>.</para>
+		/// <para>Proper seeded <see cref="CryptoRandom"/> constructor takes a 32-byte seedKey.</para>
+		/// </summary>
+		/// <param name="Seed"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CryptoRandom(int Seed) : base(Seed: int.MinValue)
 		{
@@ -56,13 +64,10 @@ namespace SecurityDriven.Core
 				value: BitConverter.IsLittleEndian ? Seed : BinaryPrimitives.ReverseEndianness(Seed));
 
 			_impl = new SeededCryptoRandom(seedKey);
-		}
+		}//ctor int Seed
 
 		/// <summary>Shared instance of <see cref="CryptoRandom"/>.</summary>
-		public static CryptoRandom Instance { get; private set; }
-
-		[ModuleInitializer]
-		internal static void SecurityDrivenCore_ModuleInitializer() => Instance = new();
+		public static CryptoRandom Shared { get; } = new();
 
 		readonly CryptoRandomBase _impl;
 
