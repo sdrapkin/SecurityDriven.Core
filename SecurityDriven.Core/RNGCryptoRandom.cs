@@ -29,6 +29,23 @@ namespace SecurityDriven.Core
 
 			[StructLayout(LayoutKind.Sequential, Size = 64 - 2 * sizeof(long))] // cache-line is assumed to be 64 bytes
 			struct PaddingStruct { }
+			/*
+			Type layout for 'ByteCache' [made with ObjectLayoutInspector]
+			Size: 64 bytes. Paddings: 4 bytes (%6 of empty space)
+			|============================================================|
+			| Object Header (8 bytes)                                    |
+			|------------------------------------------------------------|
+			| Method Table Ptr (8 bytes)                                 |
+			|============================================================|
+			|   0-7: Byte[] Bytes (8 bytes)                              |
+			|------------------------------------------------------------|
+			|  8-11: Int32 Position (4 bytes)                            |
+			|------------------------------------------------------------|
+			| 12-15: padding (4 bytes)                                   |
+			|------------------------------------------------------------|
+			| 16-63: PaddingStruct paddingToAvoidFalseSharing (48 bytes) |
+			|============================================================|
+			*/
 		}// internal class ByteCache
 
 		/// <summary>Fills the elements of a specified span of bytes with random numbers.</summary>
