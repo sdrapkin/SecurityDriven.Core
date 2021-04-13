@@ -155,6 +155,7 @@ namespace SecurityDriven.Core
 
 		/// <summary>Reseeds a seeded instance of <see cref="CryptoRandom"/>.</summary>
 		/// <param name="seedKey"></param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Reseed(ReadOnlySpan<byte> seedKey) => _impl.Reseed(seedKey);
 		#endregion
 
