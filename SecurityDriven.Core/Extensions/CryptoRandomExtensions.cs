@@ -7,24 +7,35 @@ namespace SecurityDriven.Core.Extensions
 	/// <summary>CryptoRandom extension methods.</summary>
 	public static class CryptoRandomExtensions
 	{
-		/// <summary>Fills an unmanaged struct with cryptographically strong random bytes.</summary>
+		/// <summary>Fills an unmanaged <paramref name="struct"/> with cryptographically strong random bytes.</summary>
 		/// <typeparam name="T"></typeparam>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void FillStruct<T>(this CryptoRandom cryptoRandom, ref T structure) where T : unmanaged
+		public static void Random<T>(this CryptoRandom cryptoRandom, ref T @struct) where T : unmanaged
 		{
-			cryptoRandom.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref structure), Utils.StructSizer<T>.Size));
-		}//FillStruct<T>
+			cryptoRandom.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size));
+		}//Random<T>(ref T)
 
+		/// <summary>
+		/// Returns random struct T.</summary>
+		/// <returns>Random struct T.</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static T Random<T>(this CryptoRandom cryptoRandom) where T : unmanaged
+		{
+			Span<byte> span = stackalloc byte[Utils.StructSizer<T>.Size];
+			cryptoRandom.NextBytes(span);
+			return Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(span));
+		}//T Random<T>()
+		
 		/// <summary>
 		/// Returns new 128-bit random Guid.</summary>
 		/// <returns>Guid.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Guid NewRandomGuid(this CryptoRandom cryptoRandom)
+		public static Guid RandomGuid(this CryptoRandom cryptoRandom)
 		{
 			Span<byte> guidSpan = stackalloc byte[16];
 			cryptoRandom.NextBytes(guidSpan);
 			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
-		}//NewRandomGuid()
+		}//RandomGuid()
 
 		/// <summary>
 		/// Returns new Guid well-suited to be used as a SQL-Server clustered key.
@@ -34,7 +45,7 @@ namespace SecurityDriven.Core.Extensions
 		/// </summary>
 		/// <returns>Guid for SQL-Server clustered key.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Guid NewSqlServerGuid(this CryptoRandom cryptoRandom)
+		public static Guid SqlServerGuid(this CryptoRandom cryptoRandom)
 		{
 			Span<byte> guidSpan = stackalloc byte[16];
 			cryptoRandom.NextBytes(guidSpan.Slice(0, 8));
@@ -56,6 +67,6 @@ namespace SecurityDriven.Core.Extensions
 			guidSpan[09] = ticksSpan[0];
 
 			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
-		}//NewSqlServerGuid()
+		}//SqlServerGuid()
 	}//class CryptoRandomExtensions
 }//ns
