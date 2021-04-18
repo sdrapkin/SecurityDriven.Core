@@ -163,7 +163,7 @@ namespace SecurityDriven.Core
 		{
 			public abstract void NextBytes(Span<byte> buffer);
 			public abstract void Reseed(ReadOnlySpan<byte> seedKey);
-		}
+		}//class CryptoRandomBase
 
 	}//class CryptoRandom
 }//ns
