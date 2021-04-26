@@ -11,6 +11,8 @@ namespace SecurityDriven.Core
 		//references: https://github.com/dotnet/runtime/tree/main/src/libraries/System.Private.CoreLib/src/System Random*.cs
 		//references: https://source.dot.net/#System.Private.CoreLib Random*.cs 
 
+		const int CACHE_LINE = 64; // cache-line is assumed to be 64 bytes
+
 		/// <summary>Per-processor byte cache size.</summary>
 		public const int BYTE_CACHE_SIZE = 4096; // 4k buffer seems to work best (empirical experimentation).
 		/// <summary>Requests larger than this limit will bypass the cache.</summary>
@@ -20,32 +22,13 @@ namespace SecurityDriven.Core
 
 		sealed class ByteCache
 		{
-			public byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE);
+			public byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE + CACHE_LINE);
 			public int Position = BYTE_CACHE_SIZE;
 
+			[StructLayout(LayoutKind.Sequential, Size = CACHE_LINE)] struct PaddingStruct { }
 #pragma warning disable 0169 // field is never used
 			readonly PaddingStruct paddingToAvoidFalseSharing;
 #pragma warning restore 0169
-
-			[StructLayout(LayoutKind.Sequential, Size = 64 - 2 * sizeof(long))] // cache-line is assumed to be 64 bytes
-			struct PaddingStruct { }
-			/*
-			Type layout for 'ByteCache' [made with ObjectLayoutInspector]
-			Size: 64 bytes. Paddings: 4 bytes (%6 of empty space)
-			|============================================================|
-			| Object Header (8 bytes)                                    |
-			|------------------------------------------------------------|
-			| Method Table Ptr (8 bytes)                                 |
-			|============================================================|
-			|   0-7: Byte[] Bytes (8 bytes)                              |
-			|------------------------------------------------------------|
-			|  8-11: Int32 Position (4 bytes)                            |
-			|------------------------------------------------------------|
-			| 12-15: padding (4 bytes)                                   |
-			|------------------------------------------------------------|
-			| 16-63: PaddingStruct paddingToAvoidFalseSharing (48 bytes) |
-			|============================================================|
-			*/
 		}// internal class ByteCache
 
 		/// <summary>Fills the elements of a specified span of bytes with random numbers.</summary>
@@ -81,7 +64,7 @@ namespace SecurityDriven.Core
 
 				if (byteCachePositionLocal + count > BYTE_CACHE_SIZE)
 				{
-					RandomNumberGenerator.Fill(new Span<byte>(byteCacheBytesLocal));
+					RandomNumberGenerator.Fill(new Span<byte>(byteCacheBytesLocal, 0, BYTE_CACHE_SIZE));
 					byteCachePositionLocal = 0;
 				}
 
