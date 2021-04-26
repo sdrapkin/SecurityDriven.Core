@@ -157,6 +157,69 @@ namespace SecurityDriven.Core
 		/// <param name="seedKey"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Reseed(ReadOnlySpan<byte> seedKey) => _impl.Reseed(seedKey);
+
+		/// <summary>Fills an unmanaged <paramref name="struct"/> with cryptographically strong random bytes.</summary>
+		/// <typeparam name="T"></typeparam>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void Next<T>(ref T @struct) where T : unmanaged
+		{
+			_impl.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size));
+		}//Next<T>(ref T)
+
+		/// <summary>
+		/// Returns random struct T.</summary>
+		/// <returns>Random struct T.</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public T Next<T>() where T : unmanaged
+		{
+			Span<byte> span = stackalloc byte[Utils.StructSizer<T>.Size];
+			_impl.NextBytes(span);
+			return Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(span));
+		}//T Next<T>()
+
+		/// <summary>
+		/// Returns new 128-bit random Guid. Replacement for <see cref="Guid.NewGuid"/>.</summary>
+		/// <returns>Guid.</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Guid NextGuid()
+		{
+			Span<byte> guidSpan = stackalloc byte[16];
+			_impl.NextBytes(guidSpan);
+			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
+		}//NextGuid()
+
+		/// <summary>
+		/// Returns new Guid well-suited to be used as a SQL-Server clustered key.
+		/// Guid structure is [8 random bytes][8 bytes of SQL-Server-ordered DateTime.UtcNow].
+		/// Each Guid should be sequential within 100-nanoseconds UtcNow precision limits.
+		/// 64-bit cryptographic strength provides reasonable unguessability and protection against online brute-force attacks.
+		/// </summary>
+		/// <returns>Guid for SQL-Server clustered key.</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Guid SqlServerGuid()
+		{
+			Span<byte> guidSpan = stackalloc byte[16];
+			_impl.NextBytes(guidSpan.Slice(0, 8));
+
+			DateTime utcNow = DateTime.UtcNow;
+			Span<byte> ticksSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<DateTime, byte>(ref utcNow), 8);
+
+			// based on Microsoft SqlGuid.cs
+			// https://github.com/microsoft/referencesource/blob/5697c29004a34d80acdaf5742d7e699022c64ecd/System.Data/System/Data/SQLTypes/SQLGuid.cs
+
+			guidSpan[10] = ticksSpan[7];
+			guidSpan[11] = ticksSpan[6];
+			guidSpan[12] = ticksSpan[5];
+			guidSpan[13] = ticksSpan[4];
+			guidSpan[14] = ticksSpan[3];
+			guidSpan[15] = ticksSpan[2];
+
+			guidSpan[08] = ticksSpan[1];
+			guidSpan[09] = ticksSpan[0];
+
+			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
+		}//SqlServerGuid()
+
 		#endregion
 
 		internal abstract class CryptoRandomBase
