@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace SecurityDriven.Core.Bench
 {
-	using Extensions;
 	class Bench
 	{
 		static readonly CryptoRandom cr = CryptoRandom.Shared;
 		static void Main(string[] args)
 		{
+
 			const bool SEEDED_TEST = false;
 			if (SEEDED_TEST)
 			{
@@ -48,7 +48,7 @@ namespace SecurityDriven.Core.Bench
 			for (int _ = 0; _ < 4; ++_)
 			{
 				Guid g = default;
-				cr.FillStruct(ref g);
+				cr.Next(ref g);
 				g.Dump();
 			}
 			"".Dump();
@@ -78,10 +78,10 @@ namespace SecurityDriven.Core.Bench
 					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						var data = default(TestStruct);
-						cr.FillStruct(ref data);
+						cr.Next(ref data);
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(CryptoRandomExtensions.FillStruct)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} {nameof(cr.Next)} {cr.GetType().Name}".Dump();
 				}
 
 				{
@@ -89,21 +89,32 @@ namespace SecurityDriven.Core.Bench
 					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
 						var data = default(TestStruct);
-						CryptoRandom.Shared.FillStruct(ref data);
+						CryptoRandom.Shared.Next(ref data);
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(CryptoRandom)}.{nameof(CryptoRandom.Shared)}.{nameof(CryptoRandomExtensions.FillStruct)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} {nameof(CryptoRandom)}.{nameof(CryptoRandom.Shared)}.{nameof(CryptoRandom.Shared.Next)} {cr.GetType().Name}".Dump();
 				}
 
 				{
 					sw.Restart();
 					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
-						cr.NewRandomGuid();
+						cr.NextGuid();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(CryptoRandomExtensions.NewRandomGuid)}".Dump();
+					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(cr.NextGuid)}".Dump();
 				}
+
+				{
+					sw.Restart();
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
+					{
+						cr.Next<Guid>();
+					});
+					sw.Stop();
+					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(cr.Next)}<{nameof(Guid)}>".Dump();
+				}
+
 
 				{
 					sw.Restart();
@@ -119,10 +130,10 @@ namespace SecurityDriven.Core.Bench
 					sw.Restart();
 					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
 					{
-						cr.NewSqlServerGuid();
+						cr.SqlServerGuid();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {cr.GetType().FullName}.{nameof(CryptoRandomExtensions.NewSqlServerGuid)}".Dump();
+					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(cr.SqlServerGuid)}".Dump();
 				}
 				"".Dump();
 			}// REPS
