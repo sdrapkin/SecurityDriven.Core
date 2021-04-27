@@ -70,7 +70,7 @@ namespace SecurityDriven.Core.Bench
 						cr.NextBytes(span);
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(Utils.AsSpan) + " " + nameof(cr.NextBytes)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} Utils.AsSpan(ref data); cr.NextBytes(span);".Dump();
 				}
 
 				{
@@ -81,7 +81,7 @@ namespace SecurityDriven.Core.Bench
 						cr.Next(ref data);
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(cr.Next)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} cr.Next(ref data);".Dump();
 				}
 
 				{
@@ -92,7 +92,7 @@ namespace SecurityDriven.Core.Bench
 						CryptoRandom.Shared.Next(ref data);
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {nameof(CryptoRandom)}.{nameof(CryptoRandom.Shared)}.{nameof(CryptoRandom.Shared.Next)} {cr.GetType().Name}".Dump();
+					$"{sw.Elapsed} CryptoRandom.Shared.Next(ref data);".Dump();
 				}
 
 				{
@@ -102,7 +102,7 @@ namespace SecurityDriven.Core.Bench
 						cr.NextGuid();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(cr.NextGuid)}".Dump();
+					$"{sw.Elapsed} cr.NextGuid();".Dump();
 				}
 
 				{
@@ -112,7 +112,7 @@ namespace SecurityDriven.Core.Bench
 						cr.Next<Guid>();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(cr.Next)}<{nameof(Guid)}>".Dump();
+					$"{sw.Elapsed} cr.Next<Guid>();".Dump();
 				}
 
 
@@ -123,7 +123,7 @@ namespace SecurityDriven.Core.Bench
 						Guid.NewGuid();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {typeof(Guid).FullName}.{nameof(Guid.NewGuid)}".Dump();
+					$"{sw.Elapsed} Guid.NewGuid();".Dump();
 				}
 
 				{
@@ -133,7 +133,7 @@ namespace SecurityDriven.Core.Bench
 						cr.SqlServerGuid();
 					});
 					sw.Stop();
-					$"{sw.Elapsed} {cr.GetType().Name}.{nameof(cr.SqlServerGuid)}".Dump();
+					$"{sw.Elapsed} cr.SqlServerGuid();".Dump();
 				}
 				"".Dump();
 			}// REPS
