@@ -9,7 +9,7 @@ namespace SecurityDriven.Core.Tests
 	public class SanityTests
 	{
 		[DataTestMethod]
-		[DataRow(1, 0, 1, "alpha")]
+		[DataRow(1, 0, 2 /*, "alpha" */)]
 		public void VersionCheck(int major, int minor, int build, string releaseType = "")
 		{
 			Assembly assembly = typeof(CryptoRandom).Assembly;
