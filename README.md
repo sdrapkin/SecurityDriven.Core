@@ -3,12 +3,13 @@
 ## **CryptoRandom** : Random
 
 * **.NET Random done right**
+	* Speed, Thread Safety, Cryptographic Strength: choose only 3
 * Subclasses and replaces `System.Random`
 * Also replaces `System.Security.Cryptography.RandomNumberGenerator`
 * `CryptoRandom` is (unlike `System.Random`):
 	* **Fast** (faster than `Random` or `RandomNumberGenerator`)
-	* **Thread-safe**
-	* **Cryptographically-strong** 
+	* **Thread-safe** (all APIs)
+	* **Cryptographically strong** 
 * Implements [Fast-Key-Erasure](https://blog.cr.yp.to/20170723-random.html) RNG for seeded `CryptoRandom`.
 * Achieves ~1.3cpb (cycles-per-byte) performance, similar to [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)
 * Scales per-CPU/Core
