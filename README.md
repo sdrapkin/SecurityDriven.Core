@@ -16,7 +16,7 @@
 	* 2~4x faster on Windows-x64
 	* 5~30x faster on Linux-x64
 	* 3~4x faster on Linux-ARM64 (AWS Graviton-2)
-* Supports .NET Core 5.0+
+* Supports .NET 5.0+
 
 ## **CryptoRandom APIs**:
 * All APIs of `System.Random`
