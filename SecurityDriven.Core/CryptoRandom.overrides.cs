@@ -83,6 +83,7 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override void NextBytes(byte[] buffer)
 		{
+			if (buffer is null) ThrowNewArgumentNullException(nameof(buffer));
 			_impl.NextBytes(new Span<byte>(buffer));
 		}//NextBytes(byte[])
 
@@ -118,5 +119,8 @@ namespace SecurityDriven.Core
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static void ThrowNewArgumentOutOfRangeException(string paramName) => throw new ArgumentOutOfRangeException(paramName: paramName);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		static void ThrowNewArgumentNullException(string paramName) => throw new ArgumentNullException(paramName: paramName);
 	}//class CryptoRandom
 }//ns
