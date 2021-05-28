@@ -7,12 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityDriven.Core", "Secu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F38B1F0E-F5E1-4BBB-AF84-3F75C5BA3037}"
 	ProjectSection(SolutionItems) = preProject
+		LICENSE.md = LICENSE.md
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityDriven.Core.Tests", "SecurityDriven.Core.Tests\SecurityDriven.Core.Tests.csproj", "{6D193195-134E-4549-8E56-407DB8032B01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityDriven.Core.Bench", "SecurityDriven.Core.Bench\SecurityDriven.Core.Bench.csproj", "{BE802F3B-8F89-4B82-B0F0-EFCF733130EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityDriven.Core.Bench", "SecurityDriven.Core.Bench\SecurityDriven.Core.Bench.csproj", "{BE802F3B-8F89-4B82-B0F0-EFCF733130EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
