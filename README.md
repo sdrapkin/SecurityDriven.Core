@@ -30,6 +30,10 @@
 * `byte[] NextBytes(int count)`
 * `Guid NextGuid()`
 * `Guid SqlServerGuid()`
+	* Returns new Guid well-suited to be used as a SQL-Server clustered key
+	* Guid structure is `[8 random bytes][8 bytes of SQL-Server-ordered DateTime.UtcNow]`
+	* Each Guid should be sequential within 100-nanoseconds `UtcNow` precision limits
+	* 64-bit entropy for reasonable unguessability and protection against online brute-force attacks
 * `long NextInt64()`
 * `long NextInt64(long maxValue)`
 * `long NextInt64(long minValue, long maxValue)`
