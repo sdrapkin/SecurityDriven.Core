@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SecurityDriven.Core.Tests
 {
@@ -374,6 +376,39 @@ namespace SecurityDriven.Core.Tests
 			*/
 		}//ExpectedValues_NextBytes()
 
+		[DataTestMethod]
+		[DataRow(false)]
+		[DataRow(true)]
+		public void Sample(bool seeded)
+		{
+			SubCryptoRandom r = seeded ? new SubCryptoRandom(42) : new SubCryptoRandom();
+			for (int i = 0; i < 1000; i++)
+			{
+				double d = r.ExposeSample();
+				Assert.IsTrue(d >= 0.0 && d < 1.0);
+			}
+		}//Sample()
+
+		[DataTestMethod]
+		[DataRow(false, false)]
+		[DataRow(false, true)]
+		[DataRow(true, false)]
+		[DataRow(true, true)]
+		public void Empty_Success(bool derived, bool seeded)
+		{
+			Random r = Create(derived, seeded);
+			r.NextBytes(new byte[0]);
+			r.NextBytes(Span<byte>.Empty);
+		}//Empty_Success()
+
+		[TestMethod]
+		public void Shared_IsSingleton()
+		{
+			Assert.IsNotNull(CryptoRandom.Shared);
+			Assert.AreSame(CryptoRandom.Shared, CryptoRandom.Shared);
+			Assert.AreSame(CryptoRandom.Shared, Task.Run(() => CryptoRandom.Shared).Result);
+		}//Shared_IsSingleton()
+
 		static CryptoRandom Create(bool derived, bool seeded, int seed = 42)
 		{
 			return (derived, seeded) switch
@@ -384,6 +419,38 @@ namespace SecurityDriven.Core.Tests
 				(true, true) => new SubCryptoRandom(seed)
 			};
 		}//Create()
+
+		[TestMethod]
+		public void Shared_ParallelUsage()
+		{
+			using var barrier = new Barrier(2);
+			Parallel.For(0, 2, _ =>
+			{
+				byte[] buffer = new byte[1000];
+
+				barrier.SignalAndWait();
+				for (int i = 0; i < 1_000; i++)
+				{
+					Assert_InRange(CryptoRandom.Shared.Next(), 0, int.MaxValue - 1);
+					Assert_InRange(CryptoRandom.Shared.Next(5), 0, 4);
+					Assert_InRange(CryptoRandom.Shared.Next(42, 50), 42, 49);
+
+					Assert_InRange(CryptoRandom.Shared.NextInt64(), 0, long.MaxValue - 1);
+					Assert_InRange(CryptoRandom.Shared.NextInt64(5), 0L, 5L);
+					Assert_InRange(CryptoRandom.Shared.NextInt64(42L, 50L), 42L, 49L);
+
+					Assert_InRange(CryptoRandom.Shared.NextDouble(), 0.0, 1.0);
+
+					Array.Clear(buffer, 0, buffer.Length);
+					CryptoRandom.Shared.NextBytes(buffer);
+					Assert.IsTrue(buffer.Any(b => b != 0));
+
+					Array.Clear(buffer, 0, buffer.Length);
+					CryptoRandom.Shared.NextBytes((Span<byte>)buffer);
+					Assert.IsTrue(buffer.Any(b => b != 0));
+				}//for
+			});// Parallel.For
+		}//Shared_ParallelUsage()
 
 		class SubCryptoRandom : CryptoRandom
 		{
@@ -414,7 +481,17 @@ namespace SecurityDriven.Core.Tests
 
 			if (value > maxInclusive)
 				throw new ArgumentOutOfRangeException(nameof(value), "Value is greater than maximum.");
-		}//InRange()
+		}//InRange(long)
+
+		static void Assert_InRange(double value, double minInclusive, double maxInclusive)
+		{
+			if (value < minInclusive)
+				throw new ArgumentOutOfRangeException(nameof(value), "Value is less than minimum.");
+
+			if (value > maxInclusive)
+				throw new ArgumentOutOfRangeException(nameof(value), "Value is greater than maximum.");
+		}//InRange(double)
+
 	}//class CryptoRandomTests
 
 }//ns
