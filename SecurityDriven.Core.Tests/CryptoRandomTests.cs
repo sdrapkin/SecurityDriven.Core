@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 
 namespace SecurityDriven.Core.Tests
 {
-	// Microsoft .NET Random tests: https://github.com/stephentoub/runtime/blob/main/src/libraries/System.Runtime.Extensions/tests/System/Random.cs
+	// Microsoft .NET Random tests: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Runtime.Extensions/tests/System/Random.cs
+	// Microsoft .NET RandomNumberGeneator tests: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Security.Cryptography.Algorithms/tests/RandomNumberGeneratorTests.cs
 
 	[TestClass]
 	public class CryptoRandomTests
 	{
+		#region System.Random tests
 		[DataTestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
@@ -491,7 +493,423 @@ namespace SecurityDriven.Core.Tests
 			if (value > maxInclusive)
 				throw new ArgumentOutOfRangeException(nameof(value), "Value is greater than maximum.");
 		}//InRange(double)
+		#endregion System.Random tests
 
+		#region RandomNumberGenerator tests
+		[DataTestMethod]
+		[DataRow(2048)]
+		[DataRow(65536)]
+		[DataRow(1048576)]
+		public void RandomDistribution(int arraySize)
+		{
+			byte[] random = new byte[arraySize];
+
+			CryptoRandom rng = new CryptoRandom();
+			rng.NextBytes(random);
+
+			VerifyRandomDistribution(random);
+		}//RandomDistribution()
+
+		[TestMethod]
+		public void ZeroLengthInput()
+		{
+			CryptoRandom rng = new CryptoRandom();
+			rng.NextBytes(Array.Empty<byte>()); // While this will do nothing, it's not something that throws.
+
+		}//ZeroLengthInput()
+
+		[TestMethod]
+		public void ConcurrentAccess()
+		{
+			const int ParallelTasks = 3;
+			const int PerTaskIterationCount = 20;
+			const int RandomSize = 1024;
+
+			Task[] tasks = new Task[ParallelTasks];
+			byte[][] taskArrays = new byte[ParallelTasks][];
+
+			CryptoRandom rng = new CryptoRandom();
+			using (ManualResetEvent sync = new ManualResetEvent(false))
+			{
+				for (int iTask = 0; iTask < ParallelTasks; iTask++)
+				{
+					taskArrays[iTask] = new byte[RandomSize];
+					byte[] taskLocal = taskArrays[iTask];
+
+					tasks[iTask] = Task.Run(
+						() =>
+						{
+							sync.WaitOne();
+
+							for (int i = 0; i < PerTaskIterationCount; i++)
+							{
+								rng.NextBytes(taskLocal);
+							}
+						});
+				}
+
+				// Ready? Set() Go!
+				sync.Set();
+				Task.WaitAll(tasks);
+			}
+
+			for (int i = 0; i < ParallelTasks; i++)
+			{
+				// The Real test would be to ensure independence of data, but that's difficult.
+				// The other end of the spectrum is to test that they aren't all just new byte[RandomSize].
+				// Middle ground is to assert that each of the chunks has random data.
+				VerifyRandomDistribution(taskArrays[i]);
+			}
+		}//ConcurrentAccess()
+
+		[DataTestMethod]
+		[DataRow(400)]
+		[DataRow(65536)]
+		[DataRow(1048576)]
+		public void GetBytes_Offset(int arraySize)
+		{
+			CryptoRandom rng = new CryptoRandom();
+
+			byte[] rand = new byte[arraySize];
+
+			// Set canary bytes
+			rand[99] = 77;
+			rand[399] = 77;
+
+			rng.NextBytes(new Span<byte>(rand, 100, 200));
+
+			// Array should not have been touched outside of 100-299
+			Assert.AreEqual(99, Array.IndexOf<byte>(rand, 77, 0));
+			Assert.AreEqual(399, Array.IndexOf<byte>(rand, 77, 300));
+
+			// Ensure 100-300 has random bytes; not likely to ever fail here by chance (256^200)
+			Assert.IsTrue(rand.Skip(100).Take(200).Sum(b => b) > 0);
+		}//GetBytes_Offset()
+
+		[TestMethod]
+		public void GetBytes_Array_Offset_ZeroCount()
+		{
+			CryptoRandom rng = new CryptoRandom();
+
+			byte[] rand = new byte[1] { 1 };
+
+			// A count of 0 should not do anything
+			rng.NextBytes(new Span<byte>(rand, 0, 0));
+			Assert.AreEqual(1, rand[0]);
+
+			// Having an offset of Length is allowed if count is 0
+			rng.NextBytes(new Span<byte>(rand, rand.Length, 0));
+			Assert.AreEqual(1, rand[0]);
+
+			// Zero-length array should not throw
+			rand = Array.Empty<byte>();
+			rng.NextBytes(new Span<byte>(rand, 0, 0));
+		}//GetBytes_Array_Offset_ZeroCount()
+
+		[DataTestMethod]
+		[DataRow(10)]
+		[DataRow(256)]
+		[DataRow(65536)]
+		[DataRow(1048576)]
+		public void DifferentSequential_Array(int arraySize)
+		{
+			// Ensure that the RNG doesn't produce a stable set of data.
+			byte[] first = new byte[arraySize];
+			byte[] second = new byte[arraySize];
+
+			CryptoRandom rng = new CryptoRandom();
+
+			rng.NextBytes(first);
+			rng.NextBytes(second);
+
+			// Random being random, there is a chance that it could produce the same sequence.
+			// The smallest test case that we have is 10 bytes.
+			// The probability that they are the same, given a Truly Random Number Generator is:
+			// Pmatch(byte0) * Pmatch(byte1) * Pmatch(byte2) * ... * Pmatch(byte9)
+			// = 1/256 * 1/256 * ... * 1/256
+			// = 1/(256^10)
+			// = 1/1,208,925,819,614,629,174,706,176
+			Assert.IsFalse(Enumerable.SequenceEqual(first, second));
+		}//DifferentSequential_Array()
+
+		[DataTestMethod]
+		[DataRow(10)]
+		[DataRow(256)]
+		[DataRow(65536)]
+		[DataRow(1048576)]
+		public void DifferentParallel(int arraySize)
+		{
+			// Ensure that two RNGs don't produce the same data series (such as being implemented via new Random(1)).
+			byte[] first = new byte[arraySize];
+			byte[] second = new byte[arraySize];
+
+			CryptoRandom rng1 = new CryptoRandom();
+			CryptoRandom rng2 = new CryptoRandom();
+
+			rng1.NextBytes(first);
+			rng2.NextBytes(second);
+
+			// Random being random, there is a chance that it could produce the same sequence.
+			// The smallest test case that we have is 10 bytes.
+			// The probability that they are the same, given a Truly Random Number Generator is:
+			// Pmatch(byte0) * Pmatch(byte1) * Pmatch(byte2) * ... * Pmatch(byte9)
+			// = 1/256 * 1/256 * ... * 1/256
+			// = 1/(256^10)
+			// = 1/1,208,925,819,614,629,174,706,176
+			Assert.IsFalse(Enumerable.SequenceEqual(first, second));
+		}//DifferentParallel()
+
+		[TestMethod]
+		public void NextBytes_InvalidArgs()
+		{
+			CryptoRandom rng = new CryptoRandom();
+			Assert.ThrowsException<ArgumentNullException>(() => rng.NextBytes(null));
+			rng.NextBytes(new Span<byte>(null, 0, 0)); // should not throw, and just do nothing
+			Assert.ThrowsException<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), -1, 0)));
+			Assert.ThrowsException<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), 0, -1)));
+			Assert.ThrowsException<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), 0, 1)));
+		}//NextBytes_InvalidArgs()
+
+		[TestMethod]
+		public void NextBytes_Int_Negative()
+		{
+			Assert.ThrowsException<ArgumentOutOfRangeException>(() => CryptoRandom.Shared.NextBytes(-1));
+		}//NextBytes_Int_Negative()
+
+		[TestMethod]
+		public void NextBytes_Int_Empty()
+		{
+			byte[] result = CryptoRandom.Shared.NextBytes(0);
+			Assert.IsTrue(result.Length == 0);
+		}//GetBytes_Int_Empty()
+
+		[TestMethod]
+		public void NextBytes_Span_ZeroCount()
+		{
+			CryptoRandom rng = new CryptoRandom();
+			var rand = new byte[1] { 1 };
+			rng.NextBytes(new Span<byte>(rand, 0, 0));
+			Assert.AreEqual(1, rand[0]);
+		}//NextBytes_Span_ZeroCount()
+
+		[TestMethod]
+		public void Fill_SpanLength1()
+		{
+			byte[] rand = { 1 };
+			bool replacedValue = false;
+
+			for (int i = 0; i < 10; i++)
+			{
+				CryptoRandom.Shared.NextBytes(rand);
+
+				if (rand[0] != 1)
+				{
+					replacedValue = true;
+					break;
+				}
+			}
+			Assert.IsTrue(replacedValue, "Fill eventually wrote a different byte");
+		}//Fill_SpanLength1()
+
+		[DataTestMethod]
+		[DataRow(1 << 1)]
+		[DataRow(1 << 4)]
+		[DataRow(1 << 16)]
+		[DataRow(1 << 24)]
+		public void Next_PowersOfTwo(int toExclusive)
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				int result = CryptoRandom.Shared.Next(toExclusive);
+				Assert_InRange(result, 0, toExclusive - 1);
+			}
+		}//Next_PowersOfTwo()
+
+		[DataTestMethod]
+		[DataRow((1 << 1) + 1)]
+		[DataRow((1 << 4) + 1)]
+		[DataRow((1 << 16) + 1)]
+		[DataRow((1 << 24) + 1)]
+		public void Next_PowersOfTwoPlusOne(int toExclusive)
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				int result = CryptoRandom.Shared.Next(toExclusive);
+				Assert_InRange(result, 0, toExclusive - 1);
+			}
+		}//Next_PowersOfTwoPlusOne()
+
+		[TestMethod]
+		public void Next_FullRange()
+		{
+			for (int i = 0; i < 1000; ++i)
+			{
+				int result = CryptoRandom.Shared.Next(int.MinValue, int.MaxValue);
+				Assert.AreNotEqual(int.MaxValue, result);
+			}
+		}//Next_FullRange()
+
+		[TestMethod]
+		public void Next_DoesNotProduceSameNumbers()
+		{
+			int result1 = CryptoRandom.Shared.Next(int.MinValue, int.MaxValue);
+			int result2 = CryptoRandom.Shared.Next(int.MinValue, int.MaxValue);
+			int result3 = CryptoRandom.Shared.Next(int.MinValue, int.MaxValue);
+
+			// The changes of this happening are (2^32 - 1) * 3.
+			Assert.IsFalse(result1 == result2 && result2 == result3, "Generated the same number 3 times in a row.");
+		}//Next_DoesNotProduceSameNumbers()
+
+		[TestMethod]
+		public void Next_FullRange_DistributesBitsEvenly()
+		{
+			// This test should work since we are selecting random numbers that are a [Power of two minus one] so no bit should favored.
+			int numberToGenerate = 512;
+			byte[] bytes = new byte[numberToGenerate * 4];
+			Span<byte> bytesSpan = bytes.AsSpan();
+			for (int i = 0, j = 0; i < numberToGenerate; i++, j += 4)
+			{
+				int result = CryptoRandom.Shared.Next(int.MinValue, int.MaxValue);
+				Span<byte> slice = bytesSpan.Slice(j, 4);
+				System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(slice, result);
+			}
+			VerifyRandomDistribution(bytes);
+		}//Next_FullRange_DistributesBitsEvenly()
+
+		[TestMethod]
+		public void Next_CoinFlipLowByte()
+		{
+			int numberToGenerate = 2048;
+			Span<int> generated = stackalloc int[numberToGenerate];
+
+			for (int i = 0; i < numberToGenerate; i++)
+			{
+				generated[i] = CryptoRandom.Shared.Next(0, 2);
+				Assert_InRange(generated[i], 0, 2);
+			}
+			VerifyDistribution(generated, 0.5);
+		}//Next_CoinFlipLowByte()
+
+		[TestMethod]
+		public void Next_CoinFlipOverByteBoundary()
+		{
+			int numberToGenerate = 2048;
+			Span<int> generated = stackalloc int[numberToGenerate];
+
+			for (int i = 0; i < numberToGenerate; i++)
+			{
+				generated[i] = CryptoRandom.Shared.Next(255, 257);
+				Assert_InRange(generated[i], 255, 257);
+			}
+			VerifyDistribution(generated, 0.5);
+		}//Next_CoinFlipOverByteBoundary()
+
+		[TestMethod]
+		public void Next_NegativeBounds1000d20()
+		{
+			int numberToGenerate = 10_000;
+			Span<int> generated = new int[numberToGenerate];
+
+			for (int i = 0; i < numberToGenerate; i++)
+			{
+				generated[i] = CryptoRandom.Shared.Next(-4000, -3979);
+				Assert_InRange(generated[i], -4000, -3979);
+			}
+			VerifyDistribution(generated, 0.05);
+		}//Next_NegativeBounds1000d20()
+
+		[TestMethod]
+		public void GetInt32_1000d6()
+		{
+			int numberToGenerate = 10_000;
+			Span<int> generated = new int[numberToGenerate];
+
+			for (int i = 0; i < numberToGenerate; i++)
+			{
+				generated[i] = CryptoRandom.Shared.Next(1, 7);
+				Assert_InRange(generated[i], 1, 7);
+			}
+			VerifyDistribution(generated, 0.16);
+		}//GetInt32_1000d6()
+
+		[DataTestMethod]
+		[DataRow(int.MinValue, int.MinValue + 3)]
+		[DataRow(-257, -129)]
+		[DataRow(-100, 5)]
+		[DataRow(254, 512)]
+		[DataRow(-1_073_741_909, -1_073_741_825)]
+		[DataRow(65_534, 65_539)]
+		[DataRow(16_777_214, 16_777_217)]
+		public void Next_MaskRangeCorrect(int fromInclusive, int toExclusive)
+		{
+			int numberToGenerate = 10_000;
+			Span<int> generated = new int[numberToGenerate];
+
+			for (int i = 0; i < numberToGenerate; i++)
+			{
+				generated[i] = CryptoRandom.Shared.Next(fromInclusive, toExclusive);
+				Assert_InRange(generated[i], fromInclusive, toExclusive);
+			}
+
+			double expectedDistribution = 1d / (toExclusive - fromInclusive);
+			VerifyDistribution(generated, expectedDistribution);
+		}//Next_MaskRangeCorrect()
+
+		static void VerifyRandomDistribution(byte[] random)
+		{
+			// Better tests for randomness are available.  For now just use a simple check that compares the number of 0s and 1s in the bits.
+			VerifyNeutralParity(random);
+		}
+
+		static void VerifyNeutralParity(byte[] random)
+		{
+			int zeroCount = 0, oneCount = 0;
+
+			for (int i = 0; i < random.Length; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					if (((random[i] >> j) & 1) == 1)
+					{
+						oneCount++;
+					}
+					else
+					{
+						zeroCount++;
+					}
+				}
+			}
+
+			// Over the long run there should be about as many 1s as 0s. This isn't a guarantee, just a statistical observation.
+			// Allow a 7% tolerance band before considering it to have gotten out of hand.
+			double bitDifference = Math.Abs(zeroCount - oneCount) / (double)(zeroCount + oneCount);
+			const double AllowedTolerance = 0.07;
+			if (bitDifference > AllowedTolerance)
+			{
+				throw new InvalidOperationException("Expected bitDifference < " + AllowedTolerance + ", got " + bitDifference + ".");
+			}
+		}//VerifyNeutralParity();
+
+		static void VerifyDistribution(ReadOnlySpan<int> numbers, double expected)
+		{
+			var observedNumbers = new Dictionary<int, int>(numbers.Length);
+			for (int i = 0; i < numbers.Length; i++)
+			{
+				int number = numbers[i];
+				if (!observedNumbers.TryAdd(number, 1))
+				{
+					observedNumbers[number]++;
+				}
+			}
+			const double tolerance = 0.07;
+			foreach ((_, int occurrences) in observedNumbers)
+			{
+				double percentage = occurrences / (double)numbers.Length;
+				double actual = Math.Abs(expected - percentage);
+				Assert.IsTrue(actual < tolerance, $"Occurred number of times within threshold. Actual: {actual}");
+			}
+		}//VerifyDistribution()
+		#endregion RandomNumberGenerator tests
 	}//class CryptoRandomTests
 
 }//ns
