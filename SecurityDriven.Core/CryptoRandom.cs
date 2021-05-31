@@ -78,6 +78,7 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public byte[] NextBytes(int count)
 		{
+			if (count < 0) ThrowNewArgumentOutOfRangeException(nameof(count));
 			byte[] bytes = GC.AllocateUninitializedArray<byte>(count);
 			_impl.NextBytes(new Span<byte>(bytes));
 			return bytes;
