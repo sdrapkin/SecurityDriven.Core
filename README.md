@@ -48,3 +48,24 @@
 	* Casts `Span<byte>` as equivalent unmanaged struct T
 * `int StructSizer<T>.Size`
 	* Returns byte-size of struct T
+
+---
+## **Quick benchmark**:
+```csharp
+var sw = new Stopwatch();
+const long ITER = 100_000_000, REPS = 5;
+
+for (int i = 0; i < REPS; ++i)
+{
+	sw.Restart();
+	Parallel.For(0, ITER, static i => CryptoRandom.Shared.NextGuid());
+	Console.WriteLine($"{sw.Elapsed} cryptoRandom.NextGuid()");
+}
+Console.WriteLine(new string('=', 40));
+for (int i = 0; i < REPS; ++i)
+{
+	sw.Restart();
+	Parallel.For(0, ITER, i => Guid.NewGuid());
+	Console.WriteLine($"{sw.Elapsed} Guid.NewGuid()");
+}
+```
