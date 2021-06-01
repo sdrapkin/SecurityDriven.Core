@@ -52,6 +52,9 @@
 ---
 ## **Quick benchmark**:
 ```csharp
+// using System.Threading.Tasks;
+// using SecurityDriven.Core;
+
 var sw = new Stopwatch();
 const long ITER = 100_000_000, REPS = 5;
 
