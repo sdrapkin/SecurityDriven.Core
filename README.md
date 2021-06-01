@@ -1,4 +1,4 @@
-# SecurityDriven.Core
+# SecurityDriven.Core [![NuGet](https://img.shields.io/nuget/v/CryptoRandom.svg)](https://www.nuget.org/packages/CryptoRandom/)
 
 ## **CryptoRandom** : Random
 
