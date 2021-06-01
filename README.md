@@ -18,7 +18,7 @@
 	* 5~30x faster on Linux-x64
 	* 3~4x faster on Linux-ARM64 (AWS Graviton-2)
 * Built for .NET 5.0+ and 6.0+
-* Full test coverage & correctness validation
+* Extensive test coverage & correctness validation
 
 ---
 ## **CryptoRandom API**:
