@@ -11,6 +11,7 @@
 	* **Thread-safe** (all APIs)
 	* **Cryptographically strong** (seeded or unseeded)
 * Implements [Fast-Key-Erasure](https://blog.cr.yp.to/20170723-random.html) RNG for seeded `CryptoRandom`
+* Wraps `RandomNumberGenerator` for unseeded (with additional smarts)
 * Achieves ~1.3cpb (cycles-per-byte) performance, similar to [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)
 * Scales per-CPU/Core
 * Example: `CryptoRandom.NextGuid()` vs. `Guid.NewGuid()` [BenchmarkDotNet]:
