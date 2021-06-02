@@ -2,6 +2,21 @@
 
 ## **What's wrong with `Random` and `RandomNumberGenerator`**?
 * `Random` is slow and not thread-safe (fails miserably and silently on concurrent access)
+* `Random` is incorrectly implemented:
+```csharp
+Random r = new Random(); // new CryptoRandom();
+const int mod = 2;
+int[] hist = new int[mod];
+for (int i = 0; i < 10000000; i++)
+{
+	int num = r.Next(0x55555555);
+	int num2 = num % 2;
+	++hist[num2];
+}
+for (int i = 0; i < mod; i++)
+	Console.WriteLine($"{i}: {hist[i]}");
+// Run this on .NET 5 or below. Surprised? Now change to CryptoRandom
+```
 * `Random`/.NET 6 unseeded is fast (new algorithm), with a safe `.Shared` property, but instances are not thread-safe
 * `Random`/.NET 6 seeded falls back to legacy slow non-thread-safe .NET algorithm
 * Neither `Random` implementation aims for cryptographically-strong results
