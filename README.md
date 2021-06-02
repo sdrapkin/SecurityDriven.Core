@@ -2,8 +2,8 @@
 
 ## **What are the problems with `System.Random` and `RandomNumberGenerator`**?
 * `Random` is slow and not thread-safe (fails miserably and silently on concurrent access)
-* `Random`/.NET 6 is very fast when unseeded (new algorithm), with a thread-safe `.Shared` property, but instances are not thread-safe
-* `Random`/.NET 6 falls back to legacy slow non-thread-safe .NET algorithm when seeded
+* `Random`/.NET 6 unseeded is fast (new algorithm), with a thread-safe `.Shared` property, but instances are not thread-safe
+* `Random`/.NET 6 seeded falls back to legacy slow non-thread-safe .NET algorithm
 * Neither `Random` implementation aims for cryptographically-strong results
 * `RandomNumberGenerator` can be made much faster via intelligent wrapping and consumed via more useful `Random` API
 
