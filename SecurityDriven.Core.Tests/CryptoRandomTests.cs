@@ -399,7 +399,7 @@ namespace SecurityDriven.Core.Tests
         public void Empty_Success(bool derived, bool seeded)
         {
             Random r = Create(derived, seeded);
-            r.NextBytes(new byte[0]);
+            r.NextBytes(Array.Empty<byte>());
             r.NextBytes(Span<byte>.Empty);
         }//Empty_Success()
 
@@ -511,7 +511,7 @@ namespace SecurityDriven.Core.Tests
         {
             byte[] random = new byte[arraySize];
 
-            CryptoRandom rng = new CryptoRandom();
+            CryptoRandom rng = new();
             rng.NextBytes(random);
 
             VerifyRandomDistribution(random);
@@ -520,7 +520,7 @@ namespace SecurityDriven.Core.Tests
         [TestMethod]
         public void ZeroLengthInput()
         {
-            CryptoRandom rng = new CryptoRandom();
+            CryptoRandom rng = new();
             rng.NextBytes(Array.Empty<byte>()); // While this will do nothing, it's not something that throws.
         }//ZeroLengthInput()
 
@@ -534,8 +534,8 @@ namespace SecurityDriven.Core.Tests
             Task[] tasks = new Task[ParallelTasks];
             byte[][] taskArrays = new byte[ParallelTasks][];
 
-            CryptoRandom rng = new CryptoRandom();
-            using (ManualResetEvent sync = new ManualResetEvent(false))
+            CryptoRandom rng = new();
+            using (ManualResetEvent sync = new(false))
             {
                 for (int iTask = 0; iTask < ParallelTasks; iTask++)
                 {
@@ -574,7 +574,7 @@ namespace SecurityDriven.Core.Tests
         [DataRow(1048576)]
         public void GetBytes_Offset(int arraySize)
         {
-            CryptoRandom rng = new CryptoRandom();
+            CryptoRandom rng = new();
 
             byte[] rand = new byte[arraySize];
 
@@ -595,7 +595,7 @@ namespace SecurityDriven.Core.Tests
         [TestMethod]
         public void GetBytes_Array_Offset_ZeroCount()
         {
-            CryptoRandom rng = new CryptoRandom();
+            CryptoRandom rng = new();
 
             byte[] rand = new byte[1] { 1 };
 
@@ -623,7 +623,7 @@ namespace SecurityDriven.Core.Tests
             byte[] first = new byte[arraySize];
             byte[] second = new byte[arraySize];
 
-            CryptoRandom rng = new CryptoRandom();
+            CryptoRandom rng = new();
 
             rng.NextBytes(first);
             rng.NextBytes(second);
@@ -649,8 +649,8 @@ namespace SecurityDriven.Core.Tests
             byte[] first = new byte[arraySize];
             byte[] second = new byte[arraySize];
 
-            CryptoRandom rng1 = new CryptoRandom();
-            CryptoRandom rng2 = new CryptoRandom();
+            CryptoRandom rng1 = new();
+            CryptoRandom rng2 = new();
 
             rng1.NextBytes(first);
             rng2.NextBytes(second);
@@ -668,7 +668,7 @@ namespace SecurityDriven.Core.Tests
         [TestMethod]
         public void NextBytes_InvalidArgs()
         {
-            CryptoRandom rng = new CryptoRandom();
+            CryptoRandom rng = new();
             Assert.ThrowsException<ArgumentNullException>(() => rng.NextBytes(null));
             rng.NextBytes(new Span<byte>(null, 0, 0)); // should not throw, and just do nothing
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), -1, 0)));
@@ -692,7 +692,7 @@ namespace SecurityDriven.Core.Tests
         [TestMethod]
         public void NextBytes_Span_ZeroCount()
         {
-            CryptoRandom rng = new CryptoRandom();
+            CryptoRandom rng = new();
             var rand = new byte[1] { 1 };
             rng.NextBytes(new Span<byte>(rand, 0, 0));
             Assert.AreEqual(1, rand[0]);
@@ -980,7 +980,7 @@ namespace SecurityDriven.Core.Tests
                 .Concat(Enumerable.Repeat(0.9M, extra_count2)).ToList();
 
             var q2 = q1.AsParallel().GroupBy(val => bucketFn(val, bucketCount));
-            var q3 = q2.Select(d => new { Key = d.Key, Count = d.LongCount() });
+            var q3 = q2.Select(d => new { d.Key, Count = d.LongCount() });
 
             decimal expectedMaxAverageDelta = (1M / ((decimal)Math.Pow(totalCount, 1d / 2.5)));
 
