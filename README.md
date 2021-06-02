@@ -1,6 +1,6 @@
 # SecurityDriven.Core [![NuGet](https://img.shields.io/nuget/v/CryptoRandom.svg)](https://www.nuget.org/packages/CryptoRandom/)
 
-## **What are the problems with `Random` and `RandomNumberGenerator`**?
+## **What's wrong with `Random` and `RandomNumberGenerator`**?
 * `Random` is slow and not thread-safe (fails miserably and silently on concurrent access)
 * `Random`/.NET 6 unseeded is fast (new algorithm), with a safe `.Shared` property, but instances are not thread-safe
 * `Random`/.NET 6 seeded falls back to legacy slow non-thread-safe .NET algorithm
