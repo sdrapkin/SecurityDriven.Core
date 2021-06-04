@@ -43,15 +43,14 @@ namespace SecurityDriven.Core
 				return;
 			}
 
-			int procId = 0;
-			if (Environment.ProcessorCount > 1)
-				procId = Thread.GetCurrentProcessorId();
+			ByteCache[] byteCaches = _byteCaches;
+			int procId = Thread.GetCurrentProcessorId() % Environment.ProcessorCount;
 
-			ByteCache byteCacheLocal = _byteCaches[procId];
+			ByteCache byteCacheLocal = byteCaches[procId];
 			if (byteCacheLocal == null)
 			{
-				Interlocked.CompareExchange(ref Unsafe.As<ByteCache, object>(ref _byteCaches[procId]), new ByteCache(), null);
-				byteCacheLocal = _byteCaches[procId];
+				Interlocked.CompareExchange(ref Unsafe.As<ByteCache, object>(ref byteCaches[procId]), new ByteCache(), null);
+				byteCacheLocal = byteCaches[procId];
 			}
 
 			bool lockTaken = false;
