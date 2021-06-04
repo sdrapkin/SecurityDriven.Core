@@ -8,12 +8,12 @@
     <Copyright>Copyright © $([System.DateTime]::UtcNow.ToString(yyyy)) Stan Drapkin</Copyright>
     <RepositoryUrl>https://github.com/sdrapkin/SecurityDriven.Core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Inferno.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Improved implementation, including fast-key-erasure 256bit seeded CryptoRandom.</PackageReleaseNotes>
+    <PackageReleaseNotes>Improved implementation for .NET 6.</PackageReleaseNotes>
     <Description>CryptoRandom: modern, fast, safe, cryptographically strong replacement for Random and RandomNumberGenerator.
 
 .NET 5 and up.</Description>
