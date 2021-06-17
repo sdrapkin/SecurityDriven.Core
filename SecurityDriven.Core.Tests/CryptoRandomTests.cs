@@ -411,6 +411,24 @@ namespace SecurityDriven.Core.Tests
 			Assert.AreSame(CryptoRandom.Shared, Task.Run(() => CryptoRandom.Shared).Result);
 		}//Shared_IsSingleton()
 
+		[DataTestMethod]
+		[DataRow(false)]
+		[DataRow(true)]
+		public void RandomDistributionBug(bool seeded)
+		{
+			var random = Create(derived: false, seeded: seeded);
+			const int mod = 2;
+			int[] hist = new int[mod];
+			for (int i = 0; i < 1_000_000; ++i)
+			{
+				int num = random.Next(0x55555555);
+				int num2 = num % mod;
+				++hist[num2];
+			}
+			decimal ratio = (decimal)hist[0] / (decimal)hist[1];
+			Assert.IsTrue(ratio > 0.99M && ratio < 1.01M);
+		}//RandomDistributionBug()
+
 		static CryptoRandom Create(bool derived, bool seeded, int seed = 42)
 		{
 			return (derived, seeded) switch
