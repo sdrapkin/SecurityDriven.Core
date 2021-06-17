@@ -23,13 +23,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Setup dotnet
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.301'
-      
       - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
       - run: dotnet test --no-restore --verbosity normal
