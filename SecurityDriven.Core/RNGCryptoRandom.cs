@@ -81,7 +81,7 @@ namespace SecurityDriven.Core
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override void Reseed(ReadOnlySpan<byte> seedKey) =>
-			throw new NotImplementedException(message: "Reseed is only implemented for seeded construction of CryptoRandom.");
+			throw new NotImplementedException(message: "Reseed is only implemented for seeded construction of " + nameof(CryptoRandom) + ".");
 
 	}//class RNGCryptoRandom
 }//ns
