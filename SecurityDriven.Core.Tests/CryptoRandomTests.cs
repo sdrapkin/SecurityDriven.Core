@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SecurityDriven.Core.Tests
 {
 	// Microsoft .NET Random tests: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Runtime.Extensions/tests/System/Random.cs
-	// Microsoft .NET RandomNumberGeneator tests: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Security.Cryptography.Algorithms/tests/RandomNumberGeneratorTests.cs
+	// Microsoft .NET RandomNumberGenerator tests: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Security.Cryptography.Algorithms/tests/RandomNumberGeneratorTests.cs
 
 	[TestClass]
 	public class CryptoRandomTests
@@ -73,6 +73,12 @@ namespace SecurityDriven.Core.Tests
 			for (int i = 0; i < 1000; i++)
 			{
 				double x = r.NextDouble();
+				Assert.IsTrue(x >= 0.0 && x < 1.0);
+			}
+
+			for (int i = 0; i < 1000; i++)
+			{
+				float x = r.NextSingle();
 				Assert.IsTrue(x >= 0.0 && x < 1.0);
 			}
 		}//NextInt_AllValuesAreWithinSpecifiedRange()
@@ -459,6 +465,7 @@ namespace SecurityDriven.Core.Tests
 					Assert_InRange(CryptoRandom.Shared.NextInt64(5), 0L, 5L);
 					Assert_InRange(CryptoRandom.Shared.NextInt64(42L, 50L), 42L, 49L);
 
+					Assert_InRange(CryptoRandom.Shared.NextSingle(), 0.0f, 1.0f);
 					Assert_InRange(CryptoRandom.Shared.NextDouble(), 0.0, 1.0);
 
 					Array.Clear(buffer, 0, buffer.Length);
