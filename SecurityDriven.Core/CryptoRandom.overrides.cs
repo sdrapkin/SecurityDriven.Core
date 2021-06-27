@@ -102,10 +102,10 @@ namespace SecurityDriven.Core
 		{
 			const double ONE_OVER_MAX = 1.0D / (1UL << (64 - 11)); // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 
-			Span<byte> span8 = stackalloc byte[8];
-			_impl.NextBytes(span8);
+			Utils.LongStruct longStruct = default;
+			_impl.NextBytes(MemoryMarshal.CreateSpan(ref longStruct.B1, 8));
 
-			return (Unsafe.As<byte, ulong>(ref MemoryMarshal.GetReference(span8)) >> 11) * ONE_OVER_MAX;
+			return (longStruct.UlongValue >> 11) * ONE_OVER_MAX;
 		}//NextDouble()
 
 		/// <summary>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</summary>
@@ -115,10 +115,10 @@ namespace SecurityDriven.Core
 		{
 			const float ONE_OVER_MAX = 1.0F / (1U << (32 - 8)); // https://en.wikipedia.org/wiki/Single-precision_floating-point_format
 
-			Span<byte> span4 = stackalloc byte[4];
-			_impl.NextBytes(span4);
+			Utils.IntStruct intStruct = default;
+			_impl.NextBytes(MemoryMarshal.CreateSpan(ref intStruct.B1, 4));
 
-			return (Unsafe.As<byte, uint>(ref MemoryMarshal.GetReference(span4)) >> 8) * ONE_OVER_MAX;
+			return (intStruct.UintValue >> 8) * ONE_OVER_MAX;
 		}//NextSingle()
 
 		/// <summary>Returns a random floating-point number between 0.0 and 1.0.</summary>
