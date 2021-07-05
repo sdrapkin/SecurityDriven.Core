@@ -1,4 +1,4 @@
-# SecurityDriven.Core [![NuGet](https://img.shields.io/nuget/v/CryptoRandom.svg)](https://www.nuget.org/packages/CryptoRandom/)
+# SecurityDriven.Core [![GitHub Actions](https://github.com/sdrapkin/SecurityDriven.Core/workflows/.NET%205%20CI/badge.svg)](https://github.com/sdrapkin/SecurityDriven.Core/actions) [![NuGet](https://img.shields.io/nuget/v/CryptoRandom.svg)](https://www.nuget.org/packages/CryptoRandom/)
 
 ## **CryptoRandom** : Random
 
