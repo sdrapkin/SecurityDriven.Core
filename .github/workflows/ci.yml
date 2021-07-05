@@ -28,4 +28,4 @@ jobs:
           dotnet-version: '5.0.x'
       - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
-      - run: dotnet test --no-restore --verbosity normal
+      - run: dotnet test --configuration Release --no-restore --verbosity normal
