@@ -187,7 +187,8 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Guid NextGuid()
 		{
-			Span<byte> guidSpan = stackalloc byte[16];
+			Guid guid = default;
+			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<Guid, byte>(ref guid), 16);
 			_impl.NextBytes(guidSpan);
 			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
 		}//NextGuid()
@@ -202,7 +203,8 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Guid SqlServerGuid()
 		{
-			Span<byte> guidSpan = stackalloc byte[16];
+			Guid guid = default;
+			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<Guid, byte>(ref guid), 16);
 			_impl.NextBytes(guidSpan.Slice(0, 8));
 
 			DateTime utcNow = DateTime.UtcNow;
