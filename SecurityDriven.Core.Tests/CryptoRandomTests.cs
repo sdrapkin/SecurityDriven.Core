@@ -422,12 +422,13 @@ namespace SecurityDriven.Core.Tests
 		[DataRow(true)]
 		public void RandomDistributionBug(bool seeded)
 		{
+			const int SAMPLE_SIZE = 1_000_000;
 			// test absence of bug in CryptoRandom
 			{
 				var random = Create(derived: false, seeded: seeded);
 				const int mod = 2;
 				int[] hist = new int[mod];
-				for (int i = 0; i < 1_000_000; ++i)
+				for (int i = 0; i < SAMPLE_SIZE; ++i)
 				{
 					int num = random.Next(0x55555555);
 					int num2 = num % mod;
@@ -442,7 +443,7 @@ namespace SecurityDriven.Core.Tests
 				var random = new Random(123);
 				const int mod = 2;
 				int[] hist = new int[mod];
-				for (int i = 0; i < 1_000_000; ++i)
+				for (int i = 0; i < SAMPLE_SIZE; ++i)
 				{
 					int num = random.Next(0x55555555);
 					int num2 = num % mod;
@@ -452,6 +453,68 @@ namespace SecurityDriven.Core.Tests
 				Assert.IsTrue(ratio > 0.45M && ratio < 0.55M);
 			}
 		}//RandomDistributionBug()
+
+		[DataTestMethod]
+		[DataRow(false)]
+		[DataRow(true)]
+		public void RandomDistributionBug_OddEven(bool seeded)
+		{
+			const int SAMPLE_SIZE = 2_000_000;
+
+			// test absence of bug in CryptoRandom
+			{
+				var random = Create(derived: false, seeded: seeded);
+
+				var numbers = Enumerable.Repeat(0, SAMPLE_SIZE).Select(_ => random.Next(0, int.MaxValue));
+				var oddCount = numbers.Count(x => x % 2 == 1);
+				var evenCount = SAMPLE_SIZE - oddCount;
+				Console.WriteLine($"[CryptoRandom] Odd: {oddCount}, Even: {evenCount}");
+
+				var greaterCount = Math.Max(oddCount, evenCount);
+				Assert.IsTrue(greaterCount < 1_001_500);
+			}
+
+			// test presence of bug in System.Random
+			{
+				var random = new Random();
+
+				var numbers = Enumerable.Repeat(0, SAMPLE_SIZE).Select(_ => random.Next(0, int.MaxValue));
+				var oddCount = numbers.Count(x => x % 2 == 1);
+				var evenCount = SAMPLE_SIZE - oddCount;
+				Console.WriteLine($"[System.Random] Odd: {oddCount}, Even: {evenCount}");
+
+				var greaterCount = Math.Max(oddCount, evenCount);
+				Assert.IsTrue(greaterCount > 1_002_000);
+			}
+		}//RandomDistributionBug_OddEven()
+
+		[DataTestMethod]
+		[DataRow(false)]
+		[DataRow(true)]
+		public void SeededRandom_HashCheck(bool derived)
+		{
+			const int BUFFER_SIZE = 1024 * 1024;
+
+			// create some dirty memory
+			new Random().NextBytes(new byte[BUFFER_SIZE]);
+			GC.Collect();
+
+			var random = Create(derived: derived, seeded: true);
+
+			using var hash = System.Security.Cryptography.SHA384.Create();
+			byte[] buffer = GC.AllocateUninitializedArray<byte>(BUFFER_SIZE);
+			for (int i = 0; i < 64; ++i)
+			{
+				random.NextBytes(buffer);
+				hash.TransformBlock(buffer, 0, buffer.Length, null, 0);
+			}
+			hash.TransformFinalBlock(buffer, 0, 0);
+
+			byte[] hashOutputBytes = hash.Hash;
+			string hashOutputString = Convert.ToHexString(hashOutputBytes);
+			Console.WriteLine($"Hash: {hashOutputString}");
+			Assert.IsTrue(hashOutputString == "0782E09C5096F4D4B86C6BF5569049ACE60C89E3975CA87A8EC7E1CF8EBB014E5A5E637A8A03380360324BAAFBE301D0");
+		}//SeededRandom_HashCheck()
 
 		static CryptoRandom Create(bool derived, bool seeded, int seed = 42)
 		{
