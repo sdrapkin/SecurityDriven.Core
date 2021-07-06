@@ -196,7 +196,7 @@ namespace SecurityDriven.Core
 		/// <summary>
 		/// Returns new Guid well-suited to be used as a SQL-Server clustered key.
 		/// Guid structure is [8 random bytes][8 bytes of SQL-Server-ordered DateTime.UtcNow].
-		/// Each Guid should be sequential within 100-nanoseconds UtcNow precision limits.
+		/// Each Guid should be sequential within 100-nanosecond UtcNow precision limits.
 		/// 64-bit cryptographic strength provides reasonable unguessability and protection against online brute-force attacks.
 		/// </summary>
 		/// <returns>Guid for SQL-Server clustered key.</returns>
