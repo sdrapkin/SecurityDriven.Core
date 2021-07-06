@@ -22,7 +22,7 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static SeededCryptoRandom()
 		{
-			var ptBuffer = GC.AllocateUninitializedArray<byte>(BUFFER_SIZE);
+			var ptBuffer = new byte[BUFFER_SIZE];
 
 			// Create nonces for s_ptBuffer. Ensure consistent endianness.
 			if (BitConverter.IsLittleEndian)
