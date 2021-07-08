@@ -100,3 +100,26 @@ for (int i = 0; i < mod; i++)
 * `Random`/.NET 6 seeded falls back to legacy slow non-thread-safe .NET algorithm
 * Neither `Random` implementation aims for cryptographically-strong results
 * `RandomNumberGenerator` can be much faster with intelligent wrapping and more useful `Random` API
+
+---
+## **Throughput (single-threaded):**
+```
+BenchmarkDotNet=v0.13.0, OS=Windows 10.0.19042.985 (20H2/October2020Update)
+Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
+
+[Host] : .NET 6.0.0 (6.0.21.30105), X64 RyuJIT
+|             Method |       Mean |     Error |    StdDev |    Throughput |
+|------------------- |-----------:|----------:|----------:|--------------:|
+|       SystemRandom |   139.6 μs |   2.47 μs |   2.31 μs | 7,164.57 MB/s |
+| SeededSystemRandom | 9,359.2 μs | 184.64 μs | 219.80 μs |   106.85 MB/s |
+|       CryptoRandom |   431.0 μs |   5.41 μs |   4.52 μs | 2,320.18 MB/s |
+| SeededCryptoRandom |   384.1 μs |   7.66 μs |  12.15 μs | 2,603.38 MB/s |
+
+[Host] : .NET 5.0.7 (5.0.721.25508), X64 RyuJIT
+|             Method |       Mean |     Error |    StdDev |    Throughput |
+|------------------- |-----------:|----------:|----------:|--------------:|
+|       SystemRandom | 8,221.7 μs | 121.76 μs | 101.67 μs |   121.63 MB/s |
+| SeededSystemRandom | 8,202.1 μs |  42.20 μs |  39.47 μs |   121.92 MB/s |
+|       CryptoRandom |   416.1 μs |   8.03 μs |   8.25 μs | 2,403.24 MB/s |
+| SeededCryptoRandom |   360.6 μs |   7.03 μs |   6.57 μs | 2,772.92 MB/s |
+```
