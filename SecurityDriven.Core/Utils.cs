@@ -58,53 +58,5 @@ namespace SecurityDriven.Core
 		static void AsStruct_Throw_ArgumentOutOfRangeException<T>() =>
 			  throw new ArgumentOutOfRangeException(paramName: "span", message: typeof(T).FullName + " is larger than span.Length.");
 		#endregion
-
-		#region LongStruct
-		[StructLayout(LayoutKind.Explicit, Pack = 1)]
-		internal struct LongStruct
-		{
-			[FieldOffset(0)]
-			public long LongValue;
-			[FieldOffset(0)]
-			public ulong UlongValue;
-
-			[FieldOffset(0)]
-			public byte B1;
-			[FieldOffset(1)]
-			public byte B2;
-			[FieldOffset(2)]
-			public byte B3;
-			[FieldOffset(3)]
-			public byte B4;
-			[FieldOffset(4)]
-			public byte B5;
-			[FieldOffset(5)]
-			public byte B6;
-			[FieldOffset(6)]
-			public byte B7;
-			[FieldOffset(7)]
-			public byte B8;
-		}// LongStruct
-		#endregion LongStruct
-
-		#region IntStruct
-		[StructLayout(LayoutKind.Explicit, Pack = 1)]
-		internal struct IntStruct
-		{
-			[FieldOffset(0)]
-			public int IntValue;
-			[FieldOffset(0)]
-			public uint UintValue;
-
-			[FieldOffset(0)]
-			public byte B1;
-			[FieldOffset(1)]
-			public byte B2;
-			[FieldOffset(2)]
-			public byte B3;
-			[FieldOffset(3)]
-			public byte B4;
-		}// IntStruct
-		#endregion IntStruct
 	}//class Utils
 }//ns

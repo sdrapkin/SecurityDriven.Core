@@ -60,7 +60,7 @@ namespace SecurityDriven.Core
 		public CryptoRandom(int Seed) : base(Seed: int.MinValue)
 		{
 			Span<byte> seedKey = stackalloc byte[SeededCryptoRandom.SEEDKEY_SIZE];
-			ref var seedKeyRef = ref seedKey[0];
+			ref var seedKeyRef = ref MemoryMarshal.GetReference(seedKey);
 			Unsafe.InitBlockUnaligned(ref seedKeyRef, 0, SeededCryptoRandom.SEEDKEY_SIZE);
 
 			Unsafe.WriteUnaligned<int>(destination: ref seedKeyRef,
@@ -93,12 +93,12 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public long NextInt64()
 		{
-			long result;
-			Span<byte> span8 = stackalloc byte[sizeof(long)];
+			long temp = default, result;
+			Span<byte> span8 = MemoryMarshal.CreateSpan(ref Unsafe.As<long, byte>(ref temp), sizeof(long));
 			do
 			{
 				_impl.NextBytes(span8);
-				result = Unsafe.As<byte, long>(ref MemoryMarshal.GetReference(span8)) & 0x7FFF_FFFF_FFFF_FFFF; // Mask away the sign bit
+				result = temp & 0x7FFF_FFFF_FFFF_FFFF; // Mask away the sign bit
 			} while (result == long.MaxValue); // the range must be [0, int.MaxValue)
 			return result;
 		}//NextInt64()
@@ -146,13 +146,12 @@ namespace SecurityDriven.Core
 			mask |= mask >> 16;
 			mask |= mask >> 32;
 
-			Span<byte> span8 = stackalloc byte[sizeof(ulong)];
-			ref ulong result = ref Unsafe.As<byte, ulong>(ref MemoryMarshal.GetReference(span8));
-
+			ulong temp = default, result;
+			Span<byte> span8 = MemoryMarshal.CreateSpan(ref Unsafe.As<ulong, byte>(ref temp), sizeof(ulong));
 			do
 			{
 				_impl.NextBytes(span8);
-				result &= mask;
+				result = temp & mask;
 			} while (result > range);
 			return minValue + (long)result;
 		}//NextInt64(minValue, maxValue)
@@ -176,7 +175,8 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public T Next<T>() where T : unmanaged
 		{
-			Span<byte> span = stackalloc byte[Utils.StructSizer<T>.Size];
+			T @struct = default;
+			Span<byte> span = MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size);
 			_impl.NextBytes(span);
 			return Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(span));
 		}//T Next<T>()

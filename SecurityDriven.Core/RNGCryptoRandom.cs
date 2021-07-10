@@ -22,14 +22,15 @@ namespace SecurityDriven.Core
 
 		sealed class ByteCache
 		{
-			public byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE + CACHE_LINE);
-			public int Position = BYTE_CACHE_SIZE;
-
-			[StructLayout(LayoutKind.Sequential, Size = CACHE_LINE)] struct PaddingStruct { }
-#pragma warning disable 0169 // field is never used
-			readonly PaddingStruct paddingToAvoidFalseSharing;
-#pragma warning restore 0169
+			public readonly byte[] Bytes = GC.AllocateUninitializedArray<byte>(BYTE_CACHE_SIZE);
+			public DoubleCacheLinePaddedInt Position = new() { Value = BYTE_CACHE_SIZE };
 		}// internal class ByteCache
+
+		[StructLayout(LayoutKind.Explicit, Size = CACHE_LINE * 2)]
+		struct DoubleCacheLinePaddedInt
+		{
+			[FieldOffset(CACHE_LINE)] public int Value;
+		}// struct PaddedInt
 
 		/// <summary>Fills the elements of a specified span of bytes with random numbers.</summary>
 		/// <param name="buffer">The array to be filled with random numbers.</param>
@@ -42,6 +43,7 @@ namespace SecurityDriven.Core
 				RandomNumberGenerator.Fill(buffer);
 				return;
 			}
+			if (count == 0) return;
 
 			ByteCache[] byteCaches = _byteCaches;
 			int procId = Thread.GetCurrentProcessorId() % Environment.ProcessorCount;
@@ -59,7 +61,7 @@ namespace SecurityDriven.Core
 				Monitor.Enter(byteCacheLocal, ref lockTaken);
 
 				byte[] byteCacheBytesLocal = byteCacheLocal.Bytes;
-				int byteCachePositionLocal = byteCacheLocal.Position;
+				int byteCachePositionLocal = byteCacheLocal.Position.Value;
 
 				if (byteCachePositionLocal + count > BYTE_CACHE_SIZE)
 				{
@@ -67,7 +69,7 @@ namespace SecurityDriven.Core
 					byteCachePositionLocal = 0;
 				}
 
-				byteCacheLocal.Position = byteCachePositionLocal + count; // ensure we advance the position before touching any data, in case anything throws
+				byteCacheLocal.Position.Value = byteCachePositionLocal + count; // ensure we advance the position before touching any data, in case anything throws
 
 				ref byte byteCacheLocalStart = ref byteCacheBytesLocal[byteCachePositionLocal];
 				Unsafe.CopyBlockUnaligned(destination: ref MemoryMarshal.GetReference(buffer), source: ref byteCacheLocalStart, byteCount: (uint)count);

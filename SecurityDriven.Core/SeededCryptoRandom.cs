@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 
@@ -121,8 +122,8 @@ namespace SecurityDriven.Core
 				encryptor.TransformBlock(inputBuffer: s_ptBuffer, inputOffset: 0, inputCount: BUFFER_SIZE, outputBuffer: ctBuffer, outputOffset: 0);
 				encryptor.Dispose();
 
-				ref var ctBufferRef0 = ref ctBuffer[0];
-				Unsafe.CopyBlockUnaligned(destination: ref aeskey[0], source: ref ctBufferRef0, byteCount: SEEDKEY_SIZE);
+				ref var ctBufferRef0 = ref MemoryMarshal.GetArrayDataReference(ctBuffer);
+				Unsafe.CopyBlockUnaligned(destination: ref MemoryMarshal.GetArrayDataReference(aeskey), source: ref ctBufferRef0, byteCount: SEEDKEY_SIZE);
 				Unsafe.InitBlockUnaligned(startAddress: ref ctBufferRef0, value: 0, byteCount: SEEDKEY_SIZE);
 			}//fnLocalReseed()
 		}//NextBytes(Span<byte>)

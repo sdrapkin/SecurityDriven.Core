@@ -471,7 +471,7 @@ namespace SecurityDriven.Core.Tests
 				Console.WriteLine($"[CryptoRandom] Odd: {oddCount}, Even: {evenCount}");
 
 				var greaterCount = Math.Max(oddCount, evenCount);
-				Assert.IsTrue(greaterCount < 1_001_500);
+				Assert.IsTrue(greaterCount < 1_002_000);
 			}
 
 			// test presence of bug in System.Random
@@ -1268,6 +1268,22 @@ namespace SecurityDriven.Core.Tests
 		}//CryptoRandom_ConcurrentAccess()
 
 		#endregion
+
+		[DataTestMethod]
+		[DataRow(false, false)]
+		[DataRow(false, true)]
+		[DataRow(true, false)]
+		[DataRow(true, true)]
+		public void SingleByte(bool derived, bool seeded)
+		{
+			Random r = Create(derived, seeded);
+			Span<byte> span1 = stackalloc byte[1];
+			for (int i = 0; i < CryptoRandom.Params.RNG.BYTE_CACHE_SIZE * 4; ++i)
+			{
+				r.NextBytes(span1);
+			}
+		}//SingleByte()
+
 	}//class CryptoRandomTests
 
 }//ns

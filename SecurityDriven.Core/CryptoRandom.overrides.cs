@@ -14,12 +14,12 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override int Next()
 		{
-			int result;
-			Span<byte> span4 = stackalloc byte[sizeof(int)];
+			int temp = default, result;
+			Span<byte> span4 = MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref temp), sizeof(int));
 			do
 			{
 				_impl.NextBytes(span4);
-				result = Unsafe.As<byte, int>(ref MemoryMarshal.GetReference(span4)) & 0x7FFF_FFFF; // Mask away the sign bit
+				result = temp & 0x7FFF_FFFF; // Mask away the sign bit
 			} while (result == int.MaxValue); // the range must be [0, int.MaxValue)
 			return result;
 		}//Next()
@@ -66,13 +66,12 @@ namespace SecurityDriven.Core
 			mask |= mask >> 08;
 			mask |= mask >> 16;
 
-			Span<byte> span4 = stackalloc byte[sizeof(uint)];
-			ref uint result = ref Unsafe.As<byte, uint>(ref MemoryMarshal.GetReference(span4));
-
+			uint temp = default, result;
+			Span<byte> span4 = MemoryMarshal.CreateSpan(ref Unsafe.As<uint, byte>(ref temp), sizeof(uint));
 			do
 			{
 				_impl.NextBytes(span4);
-				result &= mask;
+				result = temp & mask;
 			} while (result > range);
 			return minValue + (int)result;
 		}//Next(minValue, maxValue)
@@ -102,10 +101,9 @@ namespace SecurityDriven.Core
 		{
 			const double ONE_OVER_MAX = 1.0D / (1UL << (64 - 11)); // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 
-			Utils.LongStruct longStruct = default;
-			_impl.NextBytes(MemoryMarshal.CreateSpan(ref longStruct.B1, 8));
-
-			return (longStruct.UlongValue >> 11) * ONE_OVER_MAX;
+			long tempLong = default;
+			_impl.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<long, byte>(ref tempLong), sizeof(long)));
+			return ((ulong)tempLong >> 11) * ONE_OVER_MAX;
 		}//NextDouble()
 
 		/// <summary>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</summary>
@@ -115,10 +113,9 @@ namespace SecurityDriven.Core
 		{
 			const float ONE_OVER_MAX = 1.0F / (1U << (32 - 8)); // https://en.wikipedia.org/wiki/Single-precision_floating-point_format
 
-			Utils.IntStruct intStruct = default;
-			_impl.NextBytes(MemoryMarshal.CreateSpan(ref intStruct.B1, 4));
-
-			return (intStruct.UintValue >> 8) * ONE_OVER_MAX;
+			int tempInt = default;
+			_impl.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref tempInt), sizeof(int)));
+			return ((uint)tempInt >> 8) * ONE_OVER_MAX;
 		}//NextSingle()
 
 		/// <summary>Returns a random floating-point number between 0.0 and 1.0.</summary>
