@@ -178,7 +178,7 @@ namespace SecurityDriven.Core
 			T @struct = default;
 			Span<byte> span = MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size);
 			_impl.NextBytes(span);
-			return Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(span));
+			return @struct;
 		}//T Next<T>()
 
 		/// <summary>
@@ -190,7 +190,7 @@ namespace SecurityDriven.Core
 			Guid guid = default;
 			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<Guid, byte>(ref guid), 16);
 			_impl.NextBytes(guidSpan);
-			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
+			return guid;
 		}//NextGuid()
 
 		/// <summary>
@@ -223,7 +223,7 @@ namespace SecurityDriven.Core
 			guidSpan[08] = ticksSpan[1];
 			guidSpan[09] = ticksSpan[0];
 
-			return Unsafe.As<byte, Guid>(ref MemoryMarshal.GetReference(guidSpan));
+			return guid;
 		}//SqlServerGuid()
 
 		#endregion
