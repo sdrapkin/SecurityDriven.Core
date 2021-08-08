@@ -13,6 +13,7 @@
 	* **Thread-safe** (all APIs)
 	* **Cryptographically strong** (seeded or unseeded)
 * Implements [Fast-Key-Erasure](https://blog.cr.yp.to/20170723-random.html) RNG for seeded `CryptoRandom`
+* Produces *the same* sequence of seeded `CryptoRandom` values on *all* .NET versions (unlike `Random`)
 * Wraps `RandomNumberGenerator` for unseeded (with additional smarts)
 * Provides *backtracking resistance*: internal state cannot be used to recover the output
 * Achieves ~1.3cpb (cycles-per-byte) performance, similar to [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)
