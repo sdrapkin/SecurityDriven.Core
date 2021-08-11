@@ -106,22 +106,23 @@ for (int i = 0; i < mod; i++)
 ---
 ## **Throughput (single-threaded):**
 ```
-BenchmarkDotNet=v0.13.0, OS=Windows 10.0.19042.985 (20H2/October2020Update)
+BenchmarkDotNet=v0.13.0, OS=Windows 10.0.19042.1151 (20H2/October2020Update)
 Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
 
-[Host] : .NET 6.0.0 (6.0.21.30105), X64 RyuJIT
-|             Method |       Mean |     Error |    StdDev |    Throughput |
-|------------------- |-----------:|----------:|----------:|--------------:|
-|       SystemRandom |   139.6 μs |   2.47 μs |   2.31 μs | 7,164.57 MB/s |
-| SeededSystemRandom | 9,359.2 μs | 184.64 μs | 219.80 μs |   106.85 MB/s |
-|       CryptoRandom |   431.0 μs |   5.41 μs |   4.52 μs | 2,320.18 MB/s |
-| SeededCryptoRandom |   384.1 μs |   7.66 μs |  12.15 μs | 2,603.38 MB/s |
+[Host] : .NET 6.0.0 (6.0.21.37719), X64 RyuJIT
+|             Method |       Mean |    Error |   StdDev |    Throughput |
+|------------------- |-----------:|---------:|---------:|--------------:|
+|       SystemRandom |   132.3 μs |  1.51 μs |  1.41 μs | 7,557.15 MB/s |
+| SeededSystemRandom | 8,677.7 μs | 39.11 μs | 32.66 μs |   115.24 MB/s |
+| SharedSystemRandom |   141.1 μs |  1.22 μs |  1.08 μs | 7,086.91 MB/s |
+|       CryptoRandom |   381.7 μs |  1.59 μs |  1.41 μs | 2,620.15 MB/s |
+| SeededCryptoRandom |   323.5 μs |  0.90 μs |  0.80 μs | 3,091.36 MB/s |
 
-[Host] : .NET 5.0.7 (5.0.721.25508), X64 RyuJIT
-|             Method |       Mean |     Error |    StdDev |    Throughput |
-|------------------- |-----------:|----------:|----------:|--------------:|
-|       SystemRandom | 8,221.7 μs | 121.76 μs | 101.67 μs |   121.63 MB/s |
-| SeededSystemRandom | 8,202.1 μs |  42.20 μs |  39.47 μs |   121.92 MB/s |
-|       CryptoRandom |   416.1 μs |   8.03 μs |   8.25 μs | 2,403.24 MB/s |
-| SeededCryptoRandom |   360.6 μs |   7.03 μs |   6.57 μs | 2,772.92 MB/s |
+[Host] : .NET 5.0.9 (5.0.921.35908), X64 RyuJIT
+|             Method |       Mean |    Error |   StdDev |    Throughput |
+|------------------- |-----------:|---------:|---------:|--------------:|
+|       SystemRandom | 7,862.8 μs | 49.99 μs | 46.76 μs |   127.18 MB/s |
+| SeededSystemRandom | 7,973.3 μs | 24.34 μs | 20.32 μs |   125.42 MB/s |
+|       CryptoRandom |   386.0 μs |  3.49 μs |  3.10 μs | 2,590.94 MB/s |
+| SeededCryptoRandom |   319.9 μs |  1.82 μs |  1.70 μs | 3,126.01 MB/s |
 ```
