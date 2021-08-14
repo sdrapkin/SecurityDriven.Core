@@ -33,7 +33,9 @@
 	* `CryptoRandom(ReadOnlySpan<byte> seedKey)`
 	* `CryptoRandom(int Seed)` (just like seeded `Random` ctor)
 * `byte[] NextBytes(int count)`
-* `Guid NextGuid()` - 2x faster than `Guid.NewGuid()`
+* `Guid NextGuid()`
+	* 2x faster than `Guid.NewGuid()`
+	* 128 random bits, instead of 122
 * `Guid SqlServerGuid()`
 	* Returns new Guid well-suited to be used as a SQL-Server clustered key
 	* Guid structure is `[8 random bytes][8 bytes of SQL-Server-ordered DateTime.UtcNow]`
