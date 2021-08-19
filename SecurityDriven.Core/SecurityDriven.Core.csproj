@@ -20,6 +20,7 @@
 .NET 5 and up.</Description>
     <PackageTags>Random RandomNumberGenerator cryptography encryption security</PackageTags>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <PackageProjectUrl>https://github.com/sdrapkin/SecurityDriven.Core</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
