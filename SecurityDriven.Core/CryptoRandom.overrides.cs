@@ -109,7 +109,12 @@ namespace SecurityDriven.Core
 		/// <summary>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</summary>
 		/// <returns>A single-precision floating point number that is greater than or equal to 0.0, and less than 1.0.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public virtual float NextSingle()
+#if NET6_0_OR_GREATER
+		public override
+#else
+		public virtual
+#endif
+		float NextSingle()
 		{
 			const float ONE_OVER_MAX = 1.0F / (1U << (32 - 8)); // https://en.wikipedia.org/wiki/Single-precision_floating-point_format
 

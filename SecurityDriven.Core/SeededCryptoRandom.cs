@@ -127,5 +127,14 @@ namespace SecurityDriven.Core
 				Unsafe.InitBlockUnaligned(startAddress: ref ctBufferRef0, value: 0, byteCount: SEEDKEY_SIZE);
 			}//fnLocalReseed()
 		}//NextBytes(Span<byte>)
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Guid NextGuid()
+		{
+			Guid guid = default;
+			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<Guid, byte>(ref guid), 16);
+			this.NextBytes(guidSpan);
+			return guid;
+		}//NextGuid()
 	}//class SeededCryptoRandom
 }//ns

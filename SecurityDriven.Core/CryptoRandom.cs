@@ -47,7 +47,7 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CryptoRandom(ReadOnlySpan<byte> seedKey) : base(Seed: int.MinValue)
 		{
-			_impl = new SeededCryptoRandom(seedKey);
+			_impl = _seeded = new SeededCryptoRandom(seedKey);
 		}//ctor seedKey
 
 		/// <summary>
@@ -66,13 +66,20 @@ namespace SecurityDriven.Core
 			Unsafe.WriteUnaligned<int>(destination: ref seedKeyRef,
 				value: BitConverter.IsLittleEndian ? Seed : BinaryPrimitives.ReverseEndianness(Seed));
 
-			_impl = new SeededCryptoRandom(seedKey);
+			_impl = _seeded = new SeededCryptoRandom(seedKey);
 		}//ctor int Seed
 
 		/// <summary>Shared instance of <see cref="CryptoRandom"/>.</summary>
-		public static CryptoRandom Shared { get; } = new();
+#if NET6_0_OR_GREATER
+		public static new
+#else
+		public static
+#endif
+		CryptoRandom Shared
+		{ get; } = new();
 
-		readonly CryptoRandomBase _impl;
+		CryptoRandomBase _impl;
+		SeededCryptoRandom _seeded;
 
 		// reference: https://github.com/dotnet/runtime/blob/7795971839be34099b07595fdcf47b95f048a730/src/libraries/System.Security.Cryptography.Algorithms/src/System/Security/Cryptography/RandomNumberGenerator.cs#L161
 		/// <summary>Creates an array of bytes with a cryptographically strong random sequence of values.</summary>
@@ -91,7 +98,12 @@ namespace SecurityDriven.Core
 		/// <summary>Returns a non-negative random integer.</summary>
 		/// <returns>A 64-bit signed integer that is greater than or equal to 0 and less than <see cref="long.MaxValue"/>.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public long NextInt64()
+#if NET6_0_OR_GREATER
+		public override
+#else
+		public
+#endif
+		long NextInt64()
 		{
 			long temp = default, result;
 			Span<byte> span8 = MemoryMarshal.CreateSpan(ref Unsafe.As<long, byte>(ref temp), sizeof(long));
@@ -111,7 +123,12 @@ namespace SecurityDriven.Core
 		/// </returns>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="maxValue"/> is less than 0.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public long NextInt64(long maxValue)
+#if NET6_0_OR_GREATER
+		public override
+#else
+		public
+#endif
+		long NextInt64(long maxValue)
 		{
 			if (maxValue < 0) ThrowNewArgumentOutOfRangeException(nameof(maxValue));
 			return NextInt64(0, maxValue);
@@ -126,7 +143,12 @@ namespace SecurityDriven.Core
 		/// </returns>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="minValue"/> is greater than <paramref name="maxValue"/>.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public long NextInt64(long minValue, long maxValue)
+#if NET6_0_OR_GREATER
+		public override
+#else
+		public
+#endif
+		long NextInt64(long minValue, long maxValue)
 		{
 			if (minValue == maxValue) return minValue;
 			if (minValue > maxValue) ThrowNewArgumentOutOfRangeException(nameof(minValue));
@@ -185,13 +207,7 @@ namespace SecurityDriven.Core
 		/// Returns new 128-bit random Guid. Replacement for <see cref="Guid.NewGuid"/>.</summary>
 		/// <returns>Guid.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Guid NextGuid()
-		{
-			Guid guid = default;
-			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<Guid, byte>(ref guid), 16);
-			_impl.NextBytes(guidSpan);
-			return guid;
-		}//NextGuid()
+		public Guid NextGuid() => (_seeded is SeededCryptoRandom seeded) ? seeded.NextGuid() : FastGuid.NewGuid();
 
 		/// <summary>
 		/// Returns new Guid well-suited to be used as a SQL-Server clustered key.
