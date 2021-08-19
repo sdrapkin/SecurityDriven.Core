@@ -474,9 +474,14 @@ namespace SecurityDriven.Core.Tests
 				Assert.IsTrue(greaterCount < 1_002_000);
 			}
 
-			// test presence of bug in System.Random
+			// test presence of bug in legacy System.Random
 			{
-				var random = new Random();
+				var random =
+#if NET6_0_OR_GREATER
+					new Random(Seed: 42);
+#else
+					new Random();
+#endif
 
 				var numbers = Enumerable.Repeat(0, SAMPLE_SIZE).Select(_ => random.Next(0, int.MaxValue));
 				var oddCount = numbers.Count(x => x % 2 == 1);
@@ -599,9 +604,9 @@ namespace SecurityDriven.Core.Tests
 			if (value > maxInclusive)
 				throw new ArgumentOutOfRangeException(nameof(value), "Value is greater than maximum.");
 		}//InRange(double)
-		#endregion System.Random tests
+#endregion System.Random tests
 
-		#region RandomNumberGenerator tests
+#region RandomNumberGenerator tests
 		[DataTestMethod]
 		[DataRow(2048)]
 		[DataRow(65536)]
@@ -1015,9 +1020,9 @@ namespace SecurityDriven.Core.Tests
 				Assert.IsTrue(actual < tolerance, $"Occurred number of times within threshold. Actual: {actual}");
 			}
 		}//VerifyDistribution()
-		#endregion RandomNumberGenerator tests
+#endregion RandomNumberGenerator tests
 
-		#region CryptoRandom tests from Inferno (https://github.com/sdrapkin/SecurityDriven.Inferno)
+#region CryptoRandom tests from Inferno (https://github.com/sdrapkin/SecurityDriven.Inferno)
 		static void AssertNeutralParity(byte[] random)
 		{
 			int oneCount = 0;
@@ -1267,7 +1272,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//CryptoRandom_ConcurrentAccess()
 
-		#endregion
+#endregion
 
 		[DataTestMethod]
 		[DataRow(false, false)]
