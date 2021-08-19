@@ -2,23 +2,24 @@
 
   <PropertyGroup>
 		<PackageId>CryptoRandom</PackageId>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFrameworks>net6.0;net5.0</TargetFrameworks>
     <Authors>Stan Drapkin</Authors>
     <Company>https://SecurityDriven.net</Company>
     <Copyright>Copyright © $([System.DateTime]::UtcNow.ToString(yyyy)) Stan Drapkin</Copyright>
     <RepositoryUrl>https://github.com/sdrapkin/SecurityDriven.Core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>Inferno.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://avatars.githubusercontent.com/u/9137858?s=128</PackageIconUrl>
-    <PackageReleaseNotes>Performance improvements.</PackageReleaseNotes>
+    <PackageReleaseNotes>.NET 6 improvements, faster .NextGuid().</PackageReleaseNotes>
     <Description>CryptoRandom: modern, fast, safe, cryptographically strong replacement for Random and RandomNumberGenerator.
 
 .NET 5 and up.</Description>
     <PackageTags>Random RandomNumberGenerator cryptography encryption security</PackageTags>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
