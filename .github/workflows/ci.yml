@@ -31,4 +31,4 @@ jobs:
           include-prerelease: true
       - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
-      #- run: dotnet test --configuration Release --no-restore --verbosity normal
+      - run: dotnet test --configuration Release --no-restore --verbosity normal
