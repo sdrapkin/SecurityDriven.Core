@@ -19,11 +19,12 @@
 * Achieves ~1.3cpb (cycles-per-byte) performance, similar to [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)
 * Scales per-CPU/Core
 * Example: `CryptoRandom.NextGuid()` vs. `Guid.NewGuid()` [BenchmarkDotNet]:
-	* 2~4x faster on Windows-x64
+	* 4~5x faster on Windows-x64
 	* 5~30x faster on Linux-x64
-	* 3~4x faster on Linux-ARM64 (AWS Graviton-2)
+	* 4~5x faster on Linux-ARM64 (AWS Graviton-2)
 * Built for .NET 5.0+ and 6.0+
 * Extensive test coverage & correctness validation (110+ tests)
+	* CI runs on Linux-latest & Windows-latest
 
 ---
 ## **CryptoRandom API**:
@@ -34,7 +35,7 @@
 	* `CryptoRandom(int Seed)` (just like seeded `Random` ctor)
 * `byte[] NextBytes(int count)`
 * `Guid NextGuid()`
-	* 2x faster than `Guid.NewGuid()`
+	* 4x (400%) faster than `Guid.NewGuid()`
 	* 128 random bits, instead of 122
 * `Guid SqlServerGuid()`
 	* Returns new Guid well-suited to be used as a SQL-Server clustered key
@@ -63,24 +64,37 @@
 // using System.Threading.Tasks;
 // using SecurityDriven.Core;
 
-var sw = new Stopwatch();
+Stopwatch sw1 = new(), sw2 = new();
 const long ITER = 100_000_000, REPS = 5;
 
-for (int i = 0; i < REPS; ++i)
+for (int i = 0; i++ < REPS;)
 {
-	sw.Restart();
+	sw1.Restart();
 	Parallel.For(0, ITER, static i => CryptoRandom.Shared.NextGuid());
-	Console.WriteLine($"{sw.Elapsed} cryptoRandom.NextGuid()");
-}
-Console.WriteLine(new string('=', 40));
-for (int i = 0; i < REPS; ++i)
-{
-	sw.Restart();
-	Parallel.For(0, ITER, i => Guid.NewGuid());
-	Console.WriteLine($"{sw.Elapsed} Guid.NewGuid()");
+	sw1.Stop();
+	Console.WriteLine($"{sw1.Elapsed} cryptoRandom.NextGuid()");
+
+	sw2.Restart();
+	Parallel.For(0, ITER, static i => Guid.NewGuid());
+	sw2.Stop();
+
+	var ratio = sw2.Elapsed / sw1.Elapsed;
+	Console.WriteLine($"{sw2.Elapsed} Guid.NewGuid() [{ratio:N2}x slower]");
 }
 ```
-
+```csharp
+Output:
+00:00:00.5286240 cryptoRandom.NextGuid()
+00:00:02.0935571 Guid.NewGuid() [3.96x slower]
+00:00:00.5322790 cryptoRandom.NextGuid()
+00:00:02.0881045 Guid.NewGuid() [3.92x slower]
+00:00:00.5326918 cryptoRandom.NextGuid()
+00:00:02.1215277 Guid.NewGuid() [3.98x slower]
+00:00:00.6571763 cryptoRandom.NextGuid()
+00:00:02.6195787 Guid.NewGuid() [3.99x slower]
+00:00:00.5390337 cryptoRandom.NextGuid()
+00:00:02.1963825 Guid.NewGuid() [4.07x slower]
+```
 ---
 ## **What's wrong with `Random` and `RandomNumberGenerator`**?
 * `Random` is slow and not thread-safe (fails miserably and silently on concurrent access)
