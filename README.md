@@ -84,16 +84,16 @@ for (int i = 0; i++ < REPS;)
 ```
 ```csharp
 Output:
-00:00:00.5286240 cryptoRandom.NextGuid()
-00:00:02.0935571 Guid.NewGuid() [3.96x slower]
-00:00:00.5322790 cryptoRandom.NextGuid()
-00:00:02.0881045 Guid.NewGuid() [3.92x slower]
-00:00:00.5326918 cryptoRandom.NextGuid()
-00:00:02.1215277 Guid.NewGuid() [3.98x slower]
-00:00:00.6571763 cryptoRandom.NextGuid()
-00:00:02.6195787 Guid.NewGuid() [3.99x slower]
-00:00:00.5390337 cryptoRandom.NextGuid()
-00:00:02.1963825 Guid.NewGuid() [4.07x slower]
+00:00:00.6475797 cryptoRandom.NextGuid()
+00:00:02.2975670 Guid.NewGuid() [3.55x slower]
+00:00:00.5293374 cryptoRandom.NextGuid()
+00:00:02.1164024 Guid.NewGuid() [4.00x slower]
+00:00:00.5280493 cryptoRandom.NextGuid()
+00:00:02.1507382 Guid.NewGuid() [4.07x slower]
+00:00:00.5291863 cryptoRandom.NextGuid()
+00:00:02.1485626 Guid.NewGuid() [4.06x slower]
+00:00:00.5381674 cryptoRandom.NextGuid()
+00:00:02.1690191 Guid.NewGuid() [4.03x slower]
 ```
 ---
 ## **What's wrong with `Random` and `RandomNumberGenerator`**?
