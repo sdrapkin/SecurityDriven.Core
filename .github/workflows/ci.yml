@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
-    name: DOTNET ${{ matrix.dotnet }} CI
+    name: DOTNET CI
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -29,6 +29,6 @@ jobs:
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
-      #- run: dotnet restore
+      - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
-      - run: dotnet test --configuration Release --no-restore --verbosity normal
+      #- run: dotnet test --configuration Release --no-restore --verbosity normal
