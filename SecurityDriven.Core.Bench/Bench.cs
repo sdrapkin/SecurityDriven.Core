@@ -10,7 +10,6 @@ namespace SecurityDriven.Core.Bench
 		static readonly CryptoRandom cr = CryptoRandom.Shared;
 		static void Main(string[] args)
 		{
-
 			const bool SEEDED_TEST = false;
 			if (SEEDED_TEST)
 			{
@@ -42,8 +41,8 @@ namespace SecurityDriven.Core.Bench
 			$"{nameof(TestStruct)} Size: {Utils.StructSizer<TestStruct>.Size}\n".Dump();
 
 			const long ITER = 5_000_000L * 2L;
-			const bool IS_SEQUENTIAL = false;
-			const bool IS_PARALLEL = true;
+			const bool IS_SEQUENTIAL = true;
+			const bool IS_PARALLEL = false;
 
 			for (int _ = 0; _ < 4; ++_)
 			{
