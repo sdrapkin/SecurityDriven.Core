@@ -14,6 +14,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://avatars.githubusercontent.com/u/9137858?s=128</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>.NET 6 improvements, faster .NextGuid().</PackageReleaseNotes>
     <Description>CryptoRandom: modern, fast, safe, cryptographically strong replacement for Random and RandomNumberGenerator.
 
@@ -33,6 +34,10 @@
 
   <ItemGroup>
     <None Remove="*.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Link="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 	
 	<ItemGroup>
