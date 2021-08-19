@@ -107,24 +107,46 @@ for (int i = 0; i < mod; i++)
 
 ---
 ## **Throughput (single-threaded):**
-```
-BenchmarkDotNet=v0.13.0, OS=Windows 10.0.19042.1151 (20H2/October2020Update)
+```csharp
+BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19042.1165 (20H2/October2020Update)
 Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
-
-[Host] : .NET 6.0.0 (6.0.21.37719), X64 RyuJIT
-|             Method |       Mean |    Error |   StdDev |    Throughput |
-|------------------- |-----------:|---------:|---------:|--------------:|
-|       SystemRandom |   132.3 μs |  1.51 μs |  1.41 μs | 7,557.15 MB/s |
-| SeededSystemRandom | 8,677.7 μs | 39.11 μs | 32.66 μs |   115.24 MB/s |
-| SharedSystemRandom |   141.1 μs |  1.22 μs |  1.08 μs | 7,086.91 MB/s |
-|       CryptoRandom |   381.7 μs |  1.59 μs |  1.41 μs | 2,620.15 MB/s |
-| SeededCryptoRandom |   323.5 μs |  0.90 μs |  0.80 μs | 3,091.36 MB/s |
-
-[Host] : .NET 5.0.9 (5.0.921.35908), X64 RyuJIT
-|             Method |       Mean |    Error |   StdDev |    Throughput |
-|------------------- |-----------:|---------:|---------:|--------------:|
-|       SystemRandom | 7,862.8 μs | 49.99 μs | 46.76 μs |   127.18 MB/s |
-| SeededSystemRandom | 7,973.3 μs | 24.34 μs | 20.32 μs |   125.42 MB/s |
-|       CryptoRandom |   386.0 μs |  3.49 μs |  3.10 μs | 2,590.94 MB/s |
-| SeededCryptoRandom |   319.9 μs |  1.82 μs |  1.70 μs | 3,126.01 MB/s |
+.NET SDK=6.0.100-preview.7.21379.14
+  [Host] : .NET 6.0.0 (6.0.21.37719), X64 RyuJIT
 ```
+|             Method | BYTES |         Mean |       Error |     StdDev | Ratio | RatioSD | Throughput |
+|------------------- |------ |-------------:|------------:|-----------:|------:|--------:|-----------:|
+|       SystemRandom |    32 |     7.483 μs |   0.2714 μs |  0.0149 μs |  0.21 |    0.00 | 4,176 MB/s |
+| SystemSharedRandom |    32 |    13.197 μs |   3.3861 μs |  0.1856 μs |  0.38 |    0.00 | 2,368 MB/s |
+| SeededSystemRandom |    32 |   261.568 μs |  12.8670 μs |  0.7053 μs |  7.46 |    0.04 |   119 MB/s |
+|       CryptoRandom |    32 |    35.083 μs |   1.6305 μs |  0.0894 μs |  1.00 |    0.00 |   891 MB/s |
+| SeededCryptoRandom |    32 |    27.551 μs |   0.9383 μs |  0.0514 μs |  0.79 |    0.00 | 1,134 MB/s |
+|           RNG_Fill |    32 |   106.507 μs |  14.8172 μs |  0.8122 μs |  3.04 |    0.02 |   293 MB/s |
+|                    |       |              |             |            |       |         |            |
+|       SystemRandom |  1024 |   132.600 μs |   4.5819 μs |  0.2511 μs |  0.35 |    0.00 | 7,541 MB/s |
+| SystemSharedRandom |  1024 |   139.345 μs |  28.1093 μs |  1.5408 μs |  0.37 |    0.00 | 7,176 MB/s |
+| SeededSystemRandom |  1024 | 8,260.379 μs | 265.3543 μs | 14.5450 μs | 21.79 |    0.01 |   121 MB/s |
+|       CryptoRandom |  1024 |   379.137 μs |   8.8802 μs |  0.4868 μs |  1.00 |    0.00 | 2,638 MB/s |
+| SeededCryptoRandom |  1024 |   320.513 μs |  21.3931 μs |  1.1726 μs |  0.85 |    0.00 | 3,120 MB/s |
+|           RNG_Fill |  1024 |   447.914 μs |  15.4506 μs |  0.8469 μs |  1.18 |    0.00 | 2,233 MB/s |
+
+---
+```csharp
+BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19042.1165 (20H2/October2020Update)
+Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
+.NET SDK=6.0.100-preview.7.21379.14
+  [Host] : .NET 5.0.9 (5.0.921.35908), X64 RyuJIT
+```
+|             Method | BYTES |        Mean |      Error |    StdDev | Ratio | RatioSD | Throughput |
+|------------------- |------ |------------:|-----------:|----------:|------:|--------:|-----------:|
+|       SystemRandom |    32 |   252.89 μs |  53.609 μs |  2.938 μs |  7.30 |    0.09 |   124 MB/s |
+| SeededSystemRandom |    32 |   259.82 μs |   3.966 μs |  0.217 μs |  7.50 |    0.03 |   120 MB/s |
+|       CryptoRandom |    32 |    34.66 μs |   2.193 μs |  0.120 μs |  1.00 |    0.00 |   902 MB/s |
+| SeededCryptoRandom |    32 |    26.71 μs |   3.703 μs |  0.203 μs |  0.77 |    0.01 | 1,170 MB/s |
+|           RNG_Fill |    32 |   105.98 μs |   9.724 μs |  0.533 μs |  3.06 |    0.02 |   295 MB/s |
+|                    |       |             |            |           |       |         |            |
+|       SystemRandom |  1024 | 8,403.73 μs | 510.750 μs | 27.996 μs | 22.35 |    0.06 |   119 MB/s |
+| SeededSystemRandom |  1024 | 8,262.47 μs | 721.788 μs | 39.564 μs | 21.98 |    0.13 |   121 MB/s |
+|       CryptoRandom |  1024 |   375.98 μs |   8.603 μs |  0.472 μs |  1.00 |    0.00 | 2,660 MB/s |
+| SeededCryptoRandom |  1024 |   318.11 μs | 219.420 μs | 12.027 μs |  0.85 |    0.03 | 3,144 MB/s |
+|           RNG_Fill |  1024 |   450.76 μs |  32.919 μs |  1.804 μs |  1.20 |    0.00 | 2,218 MB/s |
+---
