@@ -163,4 +163,4 @@ Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
 |       CryptoRandom |  1024 |   375.98 μs |   8.603 μs |  0.472 μs |  1.00 |    0.00 | 2,660 MB/s |
 | SeededCryptoRandom |  1024 |   318.11 μs | 219.420 μs | 12.027 μs |  0.85 |    0.03 | 3,144 MB/s |
 |           RNG_Fill |  1024 |   450.76 μs |  32.919 μs |  1.804 μs |  1.20 |    0.00 | 2,218 MB/s |
----
+
