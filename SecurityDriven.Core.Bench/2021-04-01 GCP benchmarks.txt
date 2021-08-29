@@ -1,0 +1,296 @@
+Machine type: e2-highcpu-16 (16 vCPUs, 16 GB memory)
+
+sdrapkin@vm-1:~$ lscpu
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+Address sizes:       46 bits physical, 48 bits virtual
+CPU(s):              16
+On-line CPU(s) list: 0-15
+Thread(s) per core:  2
+Core(s) per socket:  8
+Socket(s):           1
+NUMA node(s):        1
+Vendor ID:           GenuineIntel
+CPU family:          6
+Model:               63
+Model name:          Intel(R) Xeon(R) CPU @ 2.30GHz
+Stepping:            0
+CPU MHz:             2299.998
+BogoMIPS:            4599.99
+Hypervisor vendor:   KVM
+Virtualization type: full
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            256K
+L3 cache:            46080K
+NUMA node0 CPU(s):   0-15
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_
+tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm invpcid_single pti ssbd ibrs ibpb stibp fsgsbase tsc_adju
+st bmi1 avx2 smep bmi2 erms invpcid xsaveopt arat md_clear arch_capabilities
+sdrapkin@vm-1:~$ 
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ dotnet run -c Release
+Environment.ProcessorCount: 16
+Size of Guid: 16
+[ops/ms: 77] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 311] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 21] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 10] [total-ops: 2,000,000] [Guid.NewGuid()]
+==============================================================================================================================
+Machine type: f1-micro (1 vCPU, 614 GB memory)
+
+sdrapkin@vm-1:~$ lscpu
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+Address sizes:       46 bits physical, 48 bits virtual
+CPU(s):              1
+On-line CPU(s) list: 0
+Thread(s) per core:  1
+Core(s) per socket:  1
+Socket(s):           1
+NUMA node(s):        1
+Vendor ID:           GenuineIntel
+CPU family:          6
+Model:               63
+Model name:          Intel(R) Xeon(R) CPU @ 2.30GHz
+Stepping:            0
+CPU MHz:             2299.998
+BogoMIPS:            4599.99
+Hypervisor vendor:   KVM
+Virtualization type: full
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            256K
+L3 cache:            46080K
+NUMA node0 CPU(s):   0
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm invpcid_single pti ssbd ibrs ibpb stibp fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt arat md_clear arch_capabilities
+sdrapkin@vm-1:~$ 
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ dotnet run -c Release
+Environment.ProcessorCount: 1
+Size of Guid: 16
+[ops/ms: 81] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 81] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 3] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 9] [total-ops: 2,000,000] [Guid.NewGuid()]
+========================================================================================================================
+Machine type: n2-standard-8 (8 vCPU, 32 GB memory)
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ lscpu
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+Address sizes:       46 bits physical, 48 bits virtual
+CPU(s):              8
+On-line CPU(s) list: 0-7
+Thread(s) per core:  2
+Core(s) per socket:  4
+Socket(s):           1
+NUMA node(s):        1
+Vendor ID:           GenuineIntel
+CPU family:          6
+Model:               85
+Model name:          Intel(R) Xeon(R) CPU
+Stepping:            7
+CPU MHz:             2800.194
+BogoMIPS:            5600.38
+Hypervisor vendor:   KVM
+Virtualization type: full
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            1024K
+L3 cache:            33792K
+NUMA node0 CPU(s):   0-7
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd ibrs ibpb stibp ibrs_enhanced fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves arat avx512_vnni md_clear arch_capabilities
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ 
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ dotnet run -c Release
+Environment.ProcessorCount: 8
+Size of Guid: 16
+[ops/ms: 57] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 311] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 21] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 10] [total-ops: 2,000,000] [Guid.NewGuid()]
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ dotnet run -c Release
+Environment.ProcessorCount: 8
+Size of Guid: 16
+[ops/ms: 74] [total-ops: 30,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 306] [total-ops: 30,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 18] [total-ops: 30,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 11] [total-ops: 30,000,000] [Guid.NewGuid()]
+=================================================================================================================
+Machine type: n2-highcpu-8 (8 vCPU, 8gb memory)
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ dotnet run -c Release
+Environment.ProcessorCount: 8
+Size of Guid: 16
+[ops/ms: 57] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 312] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 22] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 11] [total-ops: 2,000,000] [Guid.NewGuid()]
+
+===================================================================================================================
+Machine type: e2-highcpu-32 (32 vCPU, 32gb memory)
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ dotnet run -c Release
+Environment.ProcessorCount: 32
+Size of Guid: 16
+[ops/ms: 72] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 269] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 20] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 9] [total-ops: 2,000,000] [Guid.NewGuid()]
+====================================================================================================================
+Machine type: n1-highcpu-32 (32 vCPU, 32 gb memory)
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test1$ dotnet run -c Release
+Environment.ProcessorCount: 32
+Size of Guid: 16
+[ops/ms: 53] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 347] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 20] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 8] [total-ops: 2,000,000] [Guid.NewGuid()]
+
+====================================================================================================================
+n2-highcpu-8
+
+Environment.ProcessorCount: 8
+Size of Guid: 16
+[ops/ms: 57] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 309] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 23] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 12] [total-ops: 2,000,000] [Guid.NewGuid()]
+[ops/ms: 74] [total-ops: 2,000,000] [CryptoRandom.NewSqlServerGuid()]
+===================================================================================================================
+n2-highcpu-32
+
+Environment.ProcessorCount: 32
+Size of Guid: 16
+[ops/ms: 64] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 375] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 11] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 21] [total-ops: 2,000,000] [Guid.NewGuid()]
+[ops/ms: 68] [total-ops: 2,000,000] [CryptoRandom.NewSqlServerGuid()]
+
+e2-highcpu-32
+
+Environment.ProcessorCount: 32
+Size of Guid: 16
+[ops/ms: 75] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 263] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 19] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 9] [total-ops: 2,000,000] [Guid.NewGuid()]
+[ops/ms: 199] [total-ops: 2,000,000] [CryptoRandom.NewSqlServerGuid()]
+
+n1-standard-32
+
+Environment.ProcessorCount: 32
+Size of Guid: 16
+[ops/ms: 51] [total-ops: 2,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 301] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 18] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 8] [total-ops: 2,000,000] [Guid.NewGuid()]
+[ops/ms: 80] [total-ops: 2,000,000] [CryptoRandom.NewSqlServerGuid()]
+============================================================================================================
+AWS Graviton-2 t4g-micro
+
+[ec2-user@ip-172-31-35-73 Stan]$ lscpu
+Architecture:        aarch64
+Byte Order:          Little Endian
+CPU(s):              2
+On-line CPU(s) list: 0,1
+Thread(s) per core:  1
+Core(s) per socket:  2
+Socket(s):           1
+NUMA node(s):        1
+Model:               1
+BogoMIPS:            243.75
+L1d cache:           64K
+L1i cache:           64K
+L2 cache:            1024K
+L3 cache:            32768K
+NUMA node0 CPU(s):   0,1
+Flags:               fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp ssbs
+[ec2-user@ip-172-31-35-73 Stan]$ 
+
+Environment.ProcessorCount: 2
+Size of Guid: 16
+[ops/ms: 57] [total-ops: 2,000,000] [SecurityDriven.Core.CryptoRandom.Instance.NewRandomGuid()]
+[ops/ms: 13] [total-ops: 2,000,000] [rng.GetBytes(bytes); new Guid(bytes)]
+[ops/ms: 16] [total-ops: 2,000,000] [Guid.NewGuid()]
+[ops/ms: 53] [total-ops: 2,000,000] [CryptoRandom.NewSqlServerGuid()]
+=======================================================================================================
+2021-04-12 LinqPad benchmarks Windows10:
+
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.1440 (1909/November2018Update/19H2)
+Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
+.NET Core SDK=6.0.100-preview.3.21202.5
+  [Host] : .NET Core 5.0.5 (CoreCLR 5.0.521.16609, CoreFX 5.0.521.16609), X64 RyuJIT
+
+|                   Method | BUFFER_SIZE |      Mean |    Error |   StdDev | Ratio | RatioSD | Gen 0 | Gen 1 | Gen 2 | Allocated |
+|------------------------- |------------ |----------:|---------:|---------:|------:|--------:|------:|------:|------:|----------:|
+|     Inferno_CR_NextBytes |          16 |  31.04 ns | 0.383 ns | 0.320 ns |  0.29 |    0.01 |     - |     - |     - |         - |
+|        Core_CR_NextBytes |          16 |  34.89 ns | 0.710 ns | 0.872 ns |  0.32 |    0.01 |     - |     - |     - |         - |
+|    Core_CR_NewRandomGuid |          16 |  36.12 ns | 0.577 ns | 0.566 ns |  0.33 |    0.01 |     - |     - |     - |         - |
+| Core_CR_NewSqlServerGuid |          16 | 114.52 ns | 1.919 ns | 1.603 ns |  1.05 |    0.04 |     - |     - |     - |         - |
+|      DotnetRNG_NextBytes |          16 | 117.44 ns | 2.352 ns | 6.112 ns |  1.00 |    0.00 |     - |     - |     - |         - |
+========================================================================================================
+https://github.com/dotnet/runtime/issues/13628#issuecomment-651900257
+
+That's correct, but the raw throughput is also significantly lower on Linux compared to Windows.
+
+Windows:
+    Guid.NewGuid: 93ns
+    RandomNumberGenerator.GetBytes(16 bytes buffer): 122ns
+        Uses BCryptGenRandom, same underlying OS generator as Guid.NewGuid
+    RandomNumberGenerator.GetBytes(1024 bytes buffer): 687ns
+
+Linux:
+    Guid.NewGuid: 901ns
+        Uses /dev/urandom
+    RandomNumberGenerator.GetBytes(16 bytes buffer): 2578ns
+        Uses RAND_bytes from OpenSSL
+    RandomNumberGenerator.GetBytes(1024 bytes buffer): 5078ns
+
+Different OSes come with different performance and other tradeoffs. It is a non-goal for .NET to hide these differences.
+========================================================================================================
+2021-07-21 GCP machine: c2-standard-8
+
+  Static hostname: debian
+Transient hostname: vm-1
+         Icon name: computer-vm
+           Chassis: vm
+    Virtualization: kvm
+  Operating System: Debian GNU/Linux 10 (buster)
+            Kernel: Linux 4.19.0-17-cloud-amd64
+      Architecture: x86-64
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test3$ dotnet run -c Release
+PARALLEL | .NET 6.0.0-preview.6.21352.12
+SecurityDriven.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null
+Environment.ProcessorCount: 8
+Size of Guid: 16
+[ops/ms: 81] [total-ops: 8,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 257] [total-ops: 8,000,000] [crd.NextGuid()]
+[ops/ms: 24] [total-ops: 8,000,000] [rng.Fill(span16); new Guid(span16)]
+[ops/ms: 14] [total-ops: 8,000,000] [Guid.NewGuid()]
+[ops/ms: 307] [total-ops: 8,000,000] [crd.SqlServerGuid()]
+
+2021-07-21 GCP machine: e2-micro
+
+sdrapkin@vm-1:~/Stan-test/Inferno-Test3$ dotnet run -c Release
+PARALLEL | .NET 6.0.0-preview.6.21352.12
+SecurityDriven.Core, Version=1.0.5.0, Culture=neutral, PublicKeyToken=null
+Environment.ProcessorCount: 2
+Size of Guid: 16
+[ops/ms: 100] [total-ops: 8,000,000] [inferno.NextBytes; new Guid(bytes)]
+[ops/ms: 117] [total-ops: 8,000,000] [crd.NextGuid()]
+[ops/ms: 5] [total-ops: 8,000,000] [rng.Fill(span16); new Guid(span16)]
+[ops/ms: 12] [total-ops: 8,000,000] [Guid.NewGuid()]
+[ops/ms: 96] [total-ops: 8,000,000] [crd.SqlServerGuid()]
+
+==========================================================================================================
+https://github.com/deiruch/Extensions/blob/master/Extensions/Random.cs Gaussian
+==========================================================================================================

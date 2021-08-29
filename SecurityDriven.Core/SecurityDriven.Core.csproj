@@ -22,7 +22,8 @@
     <PackageTags>Random RandomNumberGenerator cryptography encryption security</PackageTags>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <PackageProjectUrl>https://github.com/sdrapkin/SecurityDriven.Core</PackageProjectUrl>
-  </PropertyGroup>
+		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+	</PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>SecurityDriven.Core.xml</DocumentationFile>
@@ -37,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Link="README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\README.md" Link="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 	
 	<ItemGroup>
