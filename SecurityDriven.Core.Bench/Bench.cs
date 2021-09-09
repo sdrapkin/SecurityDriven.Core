@@ -114,7 +114,6 @@ namespace SecurityDriven.Core.Bench
 					$"{sw.Elapsed} cr.Next<Guid>();".Dump();
 				}
 
-
 				{
 					sw.Restart();
 					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
@@ -133,6 +132,26 @@ namespace SecurityDriven.Core.Bench
 					});
 					sw.Stop();
 					$"{sw.Elapsed} cr.SqlServerGuid();".Dump();
+				}
+
+				{
+					sw.Restart();
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
+					{
+						cr.NextDouble();
+					});
+					sw.Stop();
+					$"{sw.Elapsed} cr.NextDouble();".Dump();
+				}
+
+				{
+					sw.Restart();
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
+					{
+						cr.NextSingle();
+					});
+					sw.Stop();
+					$"{sw.Elapsed} cr.NextSingle();".Dump();
 				}
 				"".Dump();
 			}// REPS

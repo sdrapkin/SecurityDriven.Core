@@ -39,7 +39,7 @@ namespace SecurityDriven.Core
 			// Minimize the wasted time of calling default System.Random base ctor.
 			// We can't avoid calling at least some base ctor, ie. some compute is wasted anyway.
 			// That's the price of inheriting from System.Random (doesn't implement an interface).
-			_impl = new RNGCryptoRandom();
+			_unseeded = new RNGCryptoRandom();
 		}//ctor
 
 		/// <summary>Creates a seeded instance of <see cref="CryptoRandom"/> using 32-byte seedKey.</summary>
@@ -47,7 +47,7 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CryptoRandom(ReadOnlySpan<byte> seedKey) : base(Seed: int.MinValue)
 		{
-			_impl = _seeded = new SeededCryptoRandom(seedKey);
+			_seeded = new SeededCryptoRandom(seedKey);
 		}//ctor seedKey
 
 		/// <summary>
@@ -66,7 +66,7 @@ namespace SecurityDriven.Core
 			Unsafe.WriteUnaligned<int>(destination: ref seedKeyRef,
 				value: BitConverter.IsLittleEndian ? Seed : BinaryPrimitives.ReverseEndianness(Seed));
 
-			_impl = _seeded = new SeededCryptoRandom(seedKey);
+			_seeded = new SeededCryptoRandom(seedKey);
 		}//ctor int Seed
 
 		/// <summary>Shared instance of <see cref="CryptoRandom"/>.</summary>
@@ -78,7 +78,7 @@ namespace SecurityDriven.Core
 		CryptoRandom Shared
 		{ get; } = new();
 
-		CryptoRandomBase _impl;
+		RNGCryptoRandom _unseeded;
 		SeededCryptoRandom _seeded;
 
 		// reference: https://github.com/dotnet/runtime/blob/7795971839be34099b07595fdcf47b95f048a730/src/libraries/System.Security.Cryptography.Algorithms/src/System/Security/Cryptography/RandomNumberGenerator.cs#L161
@@ -90,105 +90,30 @@ namespace SecurityDriven.Core
 		{
 			if (count < 0) ThrowNewArgumentOutOfRangeException(nameof(count));
 			byte[] bytes = GC.AllocateUninitializedArray<byte>(count);
-			_impl.NextBytes(new Span<byte>(bytes));
+			if (_unseeded is not null)
+				_unseeded.NextBytes((Span<byte>)bytes);
+			else _seeded.NextBytes((Span<byte>)bytes);
 			return bytes;
 		}//NextBytes(count)
-
-		#region New System.Random APIs
-		/// <summary>Returns a non-negative random integer.</summary>
-		/// <returns>A 64-bit signed integer that is greater than or equal to 0 and less than <see cref="long.MaxValue"/>.</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET6_0_OR_GREATER
-		public override
-#else
-		public
-#endif
-		long NextInt64()
-		{
-			long temp = default, result;
-			Span<byte> span8 = MemoryMarshal.CreateSpan(ref Unsafe.As<long, byte>(ref temp), sizeof(long));
-			do
-			{
-				_impl.NextBytes(span8);
-				result = temp & 0x7FFF_FFFF_FFFF_FFFF; // Mask away the sign bit
-			} while (result == long.MaxValue); // the range must be [0, int.MaxValue)
-			return result;
-		}//NextInt64()
-
-		/// <summary>Returns a non-negative random integer that is less than the specified maximum.</summary>
-		/// <param name="maxValue">The exclusive upper bound of the random number to be generated. <paramref name="maxValue"/> must be greater than or equal to 0.</param>
-		/// <returns>
-		/// A 64-bit signed integer that is greater than or equal to 0, and less than <paramref name="maxValue"/>; that is, the range of return values ordinarily
-		/// includes 0 but not <paramref name="maxValue"/>. However, if <paramref name="maxValue"/> equals 0, <paramref name="maxValue"/> is returned.
-		/// </returns>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="maxValue"/> is less than 0.</exception>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET6_0_OR_GREATER
-		public override
-#else
-		public
-#endif
-		long NextInt64(long maxValue)
-		{
-			if (maxValue < 0) ThrowNewArgumentOutOfRangeException(nameof(maxValue));
-			return NextInt64(0, maxValue);
-		}//NextInt64(maxValue)
-
-		/// <summary>Returns a random integer that is within a specified range.</summary>
-		/// <param name="minValue">The inclusive lower bound of the random number returned.</param>
-		/// <param name="maxValue">The exclusive upper bound of the random number returned. <paramref name="maxValue"/> must be greater than or equal to <paramref name="minValue"/>.</param>
-		/// <returns>
-		/// A 64-bit signed integer greater than or equal to <paramref name="minValue"/> and less than <paramref name="maxValue"/>; that is, the range of return values includes <paramref name="minValue"/>
-		/// but not <paramref name="maxValue"/>. If minValue equals <paramref name="maxValue"/>, <paramref name="minValue"/> is returned.
-		/// </returns>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="minValue"/> is greater than <paramref name="maxValue"/>.</exception>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET6_0_OR_GREATER
-		public override
-#else
-		public
-#endif
-		long NextInt64(long minValue, long maxValue)
-		{
-			if (minValue == maxValue) return minValue;
-			if (minValue > maxValue) ThrowNewArgumentOutOfRangeException(nameof(minValue));
-
-			// The total possible range is [0, 18,446,744,073,709,551,615). Subtract 1 to account for zero being an actual possibility.
-			ulong range = (ulong)(maxValue - minValue) - 1;
-
-			// If there is only one possible choice, nothing random will actually happen, so return the only possibility.
-			if (range == 0) return minValue;
-
-			// Create a mask for the bits that we care about for the range. The other bits will be masked away.
-			ulong mask = range;
-			mask |= mask >> 01;
-			mask |= mask >> 02;
-			mask |= mask >> 04;
-			mask |= mask >> 08;
-			mask |= mask >> 16;
-			mask |= mask >> 32;
-
-			ulong temp = default, result;
-			Span<byte> span8 = MemoryMarshal.CreateSpan(ref Unsafe.As<ulong, byte>(ref temp), sizeof(ulong));
-			do
-			{
-				_impl.NextBytes(span8);
-				result = temp & mask;
-			} while (result > range);
-			return minValue + (long)result;
-		}//NextInt64(minValue, maxValue)
 
 		/// <summary>Reseeds a seeded instance of <see cref="CryptoRandom"/>.</summary>
 		/// <param name="seedKey"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Reseed(ReadOnlySpan<byte> seedKey) => _impl.Reseed(seedKey);
+		public void Reseed(ReadOnlySpan<byte> seedKey)
+		{
+			if (_seeded is not null)
+				_seeded.Reseed(seedKey);
+			else _unseeded.Reseed(seedKey);
+		}//Reseed(seedKey)
 
 		/// <summary>Fills an unmanaged <paramref name="struct"/> with cryptographically strong random bytes.</summary>
 		/// <typeparam name="T"></typeparam>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Next<T>(ref T @struct) where T : unmanaged
 		{
-			_impl.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size));
+			if (_unseeded is not null)
+				_unseeded.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size));
+			else _seeded.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size));
 		}//Next<T>(ref T)
 
 		/// <summary>
@@ -199,7 +124,9 @@ namespace SecurityDriven.Core
 		{
 			T @struct = default;
 			Span<byte> span = MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size);
-			_impl.NextBytes(span);
+			if (_unseeded is not null)
+				_unseeded.NextBytes(span);
+			else _seeded.NextBytes(span);
 			return @struct;
 		}//T Next<T>()
 
@@ -207,7 +134,7 @@ namespace SecurityDriven.Core
 		/// Returns new 128-bit random Guid. Replacement for <see cref="Guid.NewGuid"/>.</summary>
 		/// <returns>Guid.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Guid NextGuid() => (_seeded is SeededCryptoRandom seeded) ? seeded.NextGuid() : FastGuid.NewGuid();
+		public Guid NextGuid() => (_seeded is not null) ? _seeded.NextGuid() : FastGuid.NewGuid();
 
 		/// <summary>
 		/// Returns new Guid well-suited to be used as a SQL-Server clustered key.
@@ -220,8 +147,13 @@ namespace SecurityDriven.Core
 		public Guid SqlServerGuid()
 		{
 			Guid guid = default;
-			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<Guid, byte>(ref guid), 16);
-			_impl.NextBytes(guidSpan.Slice(0, 8));
+			ref byte guid0 = ref Unsafe.As<Guid, byte>(ref guid);
+			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref guid0, 16);
+			if (_unseeded is not null)
+			{
+				Unsafe.WriteUnaligned<ulong>(ref guid0, RNGCryptoRandom.LocalContainer.NextULong());
+			}
+			else _seeded.NextBytes(guidSpan.Slice(0, 8));
 
 			DateTime utcNow = DateTime.UtcNow;
 			Span<byte> ticksSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<DateTime, byte>(ref utcNow), 8);
@@ -242,12 +174,19 @@ namespace SecurityDriven.Core
 			return guid;
 		}//SqlServerGuid()
 
-		#endregion
-
 		internal abstract class CryptoRandomBase
 		{
-			public abstract void NextBytes(Span<byte> buffer);
 			public abstract void Reseed(ReadOnlySpan<byte> seedKey);
+			public abstract int Next();
+			public abstract int Next(int maxValue);
+			public abstract int Next(int minValue, int maxValue);
+			public abstract long NextInt64();
+			public abstract long NextInt64(long maxValue);
+			public abstract long NextInt64(long minValue, long maxValue);
+			public abstract float NextSingle();
+			public abstract double NextDouble();
+			public abstract void NextBytes(byte[] buffer);
+			public abstract void NextBytes(Span<byte> buffer);
 		}//class CryptoRandomBase
 
 	}//class CryptoRandom

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -471,7 +472,7 @@ namespace SecurityDriven.Core.Tests
 				Console.WriteLine($"[CryptoRandom] Odd: {oddCount}, Even: {evenCount}");
 
 				var greaterCount = Math.Max(oddCount, evenCount);
-				Assert.IsTrue(greaterCount < 1_002_000);
+				Assert.IsTrue(greaterCount < 1_002_100);
 			}
 
 			// test presence of bug in legacy System.Random
@@ -604,9 +605,9 @@ namespace SecurityDriven.Core.Tests
 			if (value > maxInclusive)
 				throw new ArgumentOutOfRangeException(nameof(value), "Value is greater than maximum.");
 		}//InRange(double)
-#endregion System.Random tests
+		#endregion System.Random tests
 
-#region RandomNumberGenerator tests
+		#region RandomNumberGenerator tests
 		[DataTestMethod]
 		[DataRow(2048)]
 		[DataRow(65536)]
@@ -1020,9 +1021,9 @@ namespace SecurityDriven.Core.Tests
 				Assert.IsTrue(actual < tolerance, $"Occurred number of times within threshold. Actual: {actual}");
 			}
 		}//VerifyDistribution()
-#endregion RandomNumberGenerator tests
+		#endregion RandomNumberGenerator tests
 
-#region CryptoRandom tests from Inferno (https://github.com/sdrapkin/SecurityDriven.Inferno)
+		#region CryptoRandom tests from Inferno (https://github.com/sdrapkin/SecurityDriven.Inferno)
 		static void AssertNeutralParity(byte[] random)
 		{
 			int oneCount = 0;
@@ -1272,7 +1273,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//CryptoRandom_ConcurrentAccess()
 
-#endregion
+		#endregion
 
 		[DataTestMethod]
 		[DataRow(false, false)]
@@ -1288,6 +1289,31 @@ namespace SecurityDriven.Core.Tests
 				r.NextBytes(span1);
 			}
 		}//SingleByte()
+
+		[DataTestMethod]
+		[DataRow(false, false)]
+		[DataRow(false, true)]
+		[DataRow(true, false)]
+		[DataRow(true, true)]
+		public void Reseed(bool derived, bool seeded)
+		{
+			CryptoRandom cr = Create(derived, seeded);
+			if (!seeded)
+			{
+				Assert.ThrowsException<NotImplementedException>(() => cr.Reseed(new byte[32]));
+				return;
+			}
+
+			byte[] fixedSeed = new byte[CryptoRandom.Params.Seeded.SEEDKEY_SIZE];
+			RandomNumberGenerator.Fill(fixedSeed);
+
+			cr.Reseed(fixedSeed);
+			byte[] randomData1 = cr.NextBytes(20);
+			cr.Reseed(fixedSeed);
+			byte[] randomData2 = cr.NextBytes(20);
+
+			Assert.IsTrue(Enumerable.SequenceEqual(randomData1, randomData2));
+		}//Reseed()
 
 	}//class CryptoRandomTests
 
