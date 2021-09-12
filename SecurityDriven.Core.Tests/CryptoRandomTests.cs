@@ -406,7 +406,7 @@ namespace SecurityDriven.Core.Tests
 		public void Empty_Success(bool derived, bool seeded)
 		{
 			Random r = Create(derived, seeded);
-			r.NextBytes(new byte[0]);
+			r.NextBytes(Array.Empty<byte>());
 			r.NextBytes(Span<byte>.Empty);
 		}//Empty_Success()
 
@@ -1129,7 +1129,7 @@ namespace SecurityDriven.Core.Tests
 			byte[] second = new byte[arraySize];
 
 			var rng1 = new CryptoRandom();
-			var rng2 = new CryptoRandom();
+			CryptoRandom rng2;
 
 			rng1.NextBytes(first);
 			rng1.NextBytes(second);
