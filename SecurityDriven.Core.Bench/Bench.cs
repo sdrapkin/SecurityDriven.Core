@@ -11,6 +11,10 @@ namespace SecurityDriven.Core.Bench
 		static void Main(string[] args)
 		{
 			const bool SEEDED_TEST = false;
+			const long ITER = 10_000_000L * 2L;
+			const bool IS_SEQUENTIAL = false;
+			const bool IS_PARALLEL = true;
+
 			if (SEEDED_TEST)
 			{
 				var seedkey = new byte[CryptoRandom.Params.Seeded.SEEDKEY_SIZE];
@@ -35,14 +39,12 @@ namespace SecurityDriven.Core.Bench
 			}
 			var sw = new Stopwatch();
 
+            $".NET: [{Environment.Version}]".Dump();
 			$"{nameof(Environment.ProcessorCount)}: {Environment.ProcessorCount}".Dump();
 			$"{nameof(CryptoRandom.Params.RNG.BYTE_CACHE_SIZE)}: {CryptoRandom.Params.RNG.BYTE_CACHE_SIZE}".Dump();
 			$"{nameof(CryptoRandom.Params.RNG.REQUEST_CACHE_LIMIT)}: {CryptoRandom.Params.RNG.REQUEST_CACHE_LIMIT}".Dump();
 			$"{nameof(TestStruct)} Size: {Utils.StructSizer<TestStruct>.Size}\n".Dump();
 
-			const long ITER = 5_000_000L * 2L;
-			const bool IS_SEQUENTIAL = true;
-			const bool IS_PARALLEL = false;
 
 			for (int _ = 0; _ < 4; ++_)
 			{
@@ -52,7 +54,7 @@ namespace SecurityDriven.Core.Bench
 			}
 			"".Dump();
 			//return;
-			const int REPS = 6;
+			const int REPS = 5;
 
 
 			IS_SEQUENTIAL.Dump(nameof(IS_SEQUENTIAL));
@@ -132,6 +134,16 @@ namespace SecurityDriven.Core.Bench
 					});
 					sw.Stop();
 					$"{sw.Elapsed} cr.SqlServerGuid();".Dump();
+				}
+
+				{
+					sw.Restart();
+					Runner(ITER, IS_SEQUENTIAL, IS_PARALLEL, static i =>
+					{
+						cr.Next();
+					});
+					sw.Stop();
+					$"{sw.Elapsed} cr.Next();".Dump();
 				}
 
 				{
