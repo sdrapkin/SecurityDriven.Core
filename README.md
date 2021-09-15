@@ -35,7 +35,8 @@
 	* `CryptoRandom(int Seed)` (just like seeded `Random` ctor)
 * `byte[] NextBytes(int count)`
 * `Guid NextGuid()`
-	* 4x (400%) faster than `Guid.NewGuid()`
+	* 5x (500%) faster than `Guid.NewGuid()` on Windows
+	* 15x (1500%) faster than `Guid.NewGuid()` on Linux
 	* 128 random bits, instead of 122
 * `Guid SqlServerGuid()`
 	* Returns new Guid well-suited to be used as a SQL-Server clustered key
@@ -61,39 +62,44 @@
 ---
 ## **Quick benchmark**:
 ```csharp
-// using System.Threading.Tasks;
-// using SecurityDriven.Core;
+using SecurityDriven.Core;
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
+Console.WriteLine($"[{RuntimeInformation.FrameworkDescription}]");
 Stopwatch sw1 = new(), sw2 = new();
 const long ITER = 100_000_000, REPS = 5;
 
 for (int i = 0; i++ < REPS;)
 {
-	sw1.Restart();
-	Parallel.For(0, ITER, static i => CryptoRandom.Shared.NextGuid());
-	sw1.Stop();
-	Console.WriteLine($"{sw1.Elapsed} cryptoRandom.NextGuid()");
+    sw1.Restart();
+    Parallel.For(0, ITER, static i => CryptoRandom.Shared.NextGuid());
+    sw1.Stop();
+    Console.WriteLine($"{sw1.Elapsed} cryptoRandom.NextGuid()");
 
-	sw2.Restart();
-	Parallel.For(0, ITER, static i => Guid.NewGuid());
-	sw2.Stop();
+    sw2.Restart();
+    Parallel.For(0, ITER, static i => Guid.NewGuid());
+    sw2.Stop();
 
-	var ratio = sw2.Elapsed / sw1.Elapsed;
-	Console.WriteLine($"{sw2.Elapsed} Guid.NewGuid() [{ratio:N2}x slower]");
+    var ratio = sw2.Elapsed / sw1.Elapsed;
+    Console.WriteLine($"{sw2.Elapsed} Guid.NewGuid() [{ratio:N2}x slower]");
 }
 ```
 ```csharp
 Output:
-00:00:00.4844904 cryptoRandom.NextGuid()
-00:00:02.2701679 Guid.NewGuid() [4.69x slower]
-00:00:00.4403344 cryptoRandom.NextGuid()
-00:00:02.1007108 Guid.NewGuid() [4.77x slower]
-00:00:00.4459712 cryptoRandom.NextGuid()
-00:00:02.0958422 Guid.NewGuid() [4.70x slower]
-00:00:00.4398114 cryptoRandom.NextGuid()
-00:00:02.0941077 Guid.NewGuid() [4.76x slower]
-00:00:00.4423363 cryptoRandom.NextGuid()
-00:00:02.1419114 Guid.NewGuid() [4.84x slower]
+[.NET 6.0.0-rc.1.21451.13]
+00:00:00.5486513 cryptoRandom.NextGuid()
+00:00:02.0587652 Guid.NewGuid() [3.75x slower]
+00:00:00.4117180 cryptoRandom.NextGuid()
+00:00:02.0485556 Guid.NewGuid() [4.98x slower]
+00:00:00.4103378 cryptoRandom.NextGuid()
+00:00:02.0534771 Guid.NewGuid() [5.00x slower]
+00:00:00.4100701 cryptoRandom.NextGuid()
+00:00:02.0823213 Guid.NewGuid() [5.08x slower]
+00:00:00.4017192 cryptoRandom.NextGuid()
+00:00:02.0488105 Guid.NewGuid() [5.10x slower]
 ```
 ---
 ## **What's wrong with `Random` and `RandomNumberGenerator`**?
@@ -120,7 +126,7 @@ for (int i = 0; i < mod; i++)
 * `RandomNumberGenerator` can be much faster with intelligent wrapping and more useful `Random` API
 
 ---
-## **Throughput (single-threaded):**
+## **Throughput (single-threaded) .NET 6:**
 ```csharp
 BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19042.1165 (20H2/October2020Update)
 Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
@@ -143,7 +149,7 @@ Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
 | SeededCryptoRandom |  1024 |   320.513 μs |  21.3931 μs |  1.1726 μs |  0.85 |    0.00 | 3,120 MB/s |
 |           RNG_Fill |  1024 |   447.914 μs |  15.4506 μs |  0.8469 μs |  1.18 |    0.00 | 2,233 MB/s |
 
----
+## **Throughput (single-threaded) .NET 5:**
 ```csharp
 BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19042.1165 (20H2/October2020Update)
 Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
