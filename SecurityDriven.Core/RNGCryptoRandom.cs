@@ -246,7 +246,7 @@ namespace SecurityDriven.Core
 
 			container._idx = idx + ulongsNeeded;
 
-			ref byte byteCacheLocalStart = ref Unsafe.As<ulong, byte>(ref Unsafe.Add(ref ulong0, idx));//bytes[idx * sizeof(ulong)];
+			ref byte byteCacheLocalStart = ref Unsafe.As<ulong, byte>(ref Unsafe.Add(ref ulong0, idx));
 			Unsafe.CopyBlockUnaligned(destination: ref MemoryMarshal.GetReference(buffer), source: ref byteCacheLocalStart, byteCount: (uint)count);
 			Unsafe.InitBlockUnaligned(startAddress: ref byteCacheLocalStart, value: 0, byteCount: (uint)(ulongsNeeded * sizeof(ulong)));
 		}
