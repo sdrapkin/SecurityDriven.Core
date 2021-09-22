@@ -23,7 +23,7 @@ namespace SecurityDriven.Core
 		public override int Next(int maxValue)
 		{
 			if (maxValue < 0) ThrowNewArgumentOutOfRangeException(nameof(maxValue));
-			return (_unseeded is not null) ? _unseeded.Next(maxValue) : _seeded.Next(maxValue);
+			return (_unseeded is RNGCryptoRandom unseeded) ? unseeded.Next(maxValue) : _seeded.Next(maxValue);
 		}//Next(maxValue)
 
 		/// <summary>Returns a random integer that is within a specified range.</summary>
@@ -39,7 +39,7 @@ namespace SecurityDriven.Core
 		{
 			//if (minValue == maxValue) return minValue;
 			if (minValue > maxValue) ThrowNewArgumentOutOfRangeException(nameof(minValue));
-			return (_unseeded is not null) ? _unseeded.Next(minValue, maxValue) : _seeded.Next(minValue, maxValue);
+			return (_unseeded is RNGCryptoRandom unseeded) ? unseeded.Next(minValue, maxValue) : _seeded.Next(minValue, maxValue);
 		}//Next(minValue, maxValue)
 
 		/// <summary>Fills the elements of a specified array of bytes with random numbers.</summary>
@@ -49,8 +49,8 @@ namespace SecurityDriven.Core
 		public override void NextBytes(byte[] buffer)
 		{
 			if (buffer is null) ThrowNewArgumentNullException(nameof(buffer));
-			if (_unseeded is not null)
-				_unseeded.NextBytes((Span<byte>)buffer);
+			if (_unseeded is RNGCryptoRandom unseeded)
+				unseeded.NextBytes((Span<byte>)buffer);
 			else
 				_seeded.NextBytes((Span<byte>)buffer);
 		}//NextBytes(byte[])
@@ -60,8 +60,8 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override void NextBytes(Span<byte> buffer)
 		{
-			if (_unseeded is not null)
-				_unseeded.NextBytes(buffer);
+			if (_unseeded is RNGCryptoRandom unseeded)
+				unseeded.NextBytes(buffer);
 			else
 				_seeded.NextBytes(buffer);
 		}//NextBytes(Span<byte>)
@@ -69,7 +69,7 @@ namespace SecurityDriven.Core
 		/// <summary>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</summary>
 		/// <returns>A double-precision floating point number that is greater than or equal to 0.0, and less than 1.0.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override double NextDouble() => (_unseeded is not null) ? _unseeded.NextDouble() : _seeded.NextDouble();
+		public override double NextDouble() => (_unseeded is RNGCryptoRandom unseeded) ? unseeded.NextDouble() : _seeded.NextDouble();
 
 		/// <summary>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</summary>
 		/// <returns>A single-precision floating point number that is greater than or equal to 0.0, and less than 1.0.</returns>
@@ -79,7 +79,7 @@ namespace SecurityDriven.Core
 #else
 		public virtual
 #endif
-		float NextSingle() => (_unseeded is not null) ? _unseeded.NextSingle() : _seeded.NextSingle();
+		float NextSingle() => (_unseeded is RNGCryptoRandom unseeded) ? unseeded.NextSingle() : _seeded.NextSingle();
 
 		/// <summary>Returns a random floating-point number between 0.0 and 1.0.</summary>
 		/// <returns>A double-precision floating point number that is greater than or equal to 0.0, and less than 1.0.</returns>
@@ -99,7 +99,7 @@ namespace SecurityDriven.Core
 #else
 		public
 #endif
-		long NextInt64() => (_unseeded is not null) ? _unseeded.NextInt64() : _seeded.NextInt64();
+		long NextInt64() => (_unseeded is RNGCryptoRandom unseeded) ? unseeded.NextInt64() : _seeded.NextInt64();
 
 		/// <summary>Returns a non-negative random integer that is less than the specified maximum.</summary>
 		/// <param name="maxValue">The exclusive upper bound of the random number to be generated. <paramref name="maxValue"/> must be greater than or equal to 0.</param>
@@ -117,7 +117,7 @@ namespace SecurityDriven.Core
 		long NextInt64(long maxValue)
 		{
 			if (maxValue < 0) ThrowNewArgumentOutOfRangeException(nameof(maxValue));
-			return (_unseeded is not null) ? _unseeded.NextInt64(maxValue) : _seeded.NextInt64(maxValue);
+			return (_unseeded is RNGCryptoRandom unseeded) ? unseeded.NextInt64(maxValue) : _seeded.NextInt64(maxValue);
 		}//NextInt64(maxValue)
 
 		/// <summary>Returns a random integer that is within a specified range.</summary>
@@ -137,7 +137,7 @@ namespace SecurityDriven.Core
 		long NextInt64(long minValue, long maxValue)
 		{
 			if (minValue > maxValue) ThrowNewArgumentOutOfRangeException(nameof(minValue));
-			return (_unseeded is not null) ? _unseeded.NextInt64(minValue, maxValue) : _seeded.NextInt64(minValue, maxValue);
+			return (_unseeded is RNGCryptoRandom unseeded) ? unseeded.NextInt64(minValue, maxValue) : _seeded.NextInt64(minValue, maxValue);
 		}//NextInt64(minValue, maxValue)
 		#endregion
 

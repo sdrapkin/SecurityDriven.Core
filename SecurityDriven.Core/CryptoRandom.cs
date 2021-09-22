@@ -90,8 +90,8 @@ namespace SecurityDriven.Core
 		{
 			if (count < 0) ThrowNewArgumentOutOfRangeException(nameof(count));
 			byte[] bytes = GC.AllocateUninitializedArray<byte>(count);
-			if (_unseeded is not null)
-				_unseeded.NextBytes((Span<byte>)bytes);
+			if (_unseeded is RNGCryptoRandom unseeded)
+				unseeded.NextBytes((Span<byte>)bytes);
 			else _seeded.NextBytes((Span<byte>)bytes);
 			return bytes;
 		}//NextBytes(count)
@@ -101,8 +101,8 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Reseed(ReadOnlySpan<byte> seedKey)
 		{
-			if (_seeded is not null)
-				_seeded.Reseed(seedKey);
+			if (_seeded is SeededCryptoRandom seeded)
+				seeded.Reseed(seedKey);
 			else _unseeded.Reseed(seedKey);
 		}//Reseed(seedKey)
 
@@ -111,9 +111,10 @@ namespace SecurityDriven.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Next<T>(ref T @struct) where T : unmanaged
 		{
-			if (_unseeded is not null)
-				_unseeded.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size));
-			else _seeded.NextBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size));
+			Span<byte> span = MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size);
+			if (_unseeded is RNGCryptoRandom unseeded)
+				unseeded.NextBytes(span);
+			else _seeded.NextBytes(span);
 		}//Next<T>(ref T)
 
 		/// <summary>
@@ -124,8 +125,8 @@ namespace SecurityDriven.Core
 		{
 			T @struct = default;
 			Span<byte> span = MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref @struct), Utils.StructSizer<T>.Size);
-			if (_unseeded is not null)
-				_unseeded.NextBytes(span);
+			if (_unseeded is RNGCryptoRandom unseeded)
+				unseeded.NextBytes(span);
 			else _seeded.NextBytes(span);
 			return @struct;
 		}//T Next<T>()
@@ -134,7 +135,7 @@ namespace SecurityDriven.Core
 		/// Returns new 128-bit random Guid. Replacement for <see cref="Guid.NewGuid"/>.</summary>
 		/// <returns>Guid.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Guid NextGuid() => (_seeded is not null) ? _seeded.NextGuid() : FastGuid.NewGuid();
+		public Guid NextGuid() => (_seeded is SeededCryptoRandom seeded) ? seeded.NextGuid() : FastGuid.NewGuid();
 
 		/// <summary>
 		/// Returns new Guid well-suited to be used as a SQL-Server clustered key.
@@ -149,11 +150,9 @@ namespace SecurityDriven.Core
 			Guid guid = default;
 			ref byte guid0 = ref Unsafe.As<Guid, byte>(ref guid);
 			Span<byte> guidSpan = MemoryMarshal.CreateSpan(ref guid0, 16);
-			if (_unseeded is not null)
-			{
-				Unsafe.WriteUnaligned<ulong>(ref guid0, RNGCryptoRandom.LocalContainer.NextULong());
-			}
-			else _seeded.NextBytes(guidSpan.Slice(0, 8));
+			if (_seeded is SeededCryptoRandom seeded)
+				seeded.NextBytes(guidSpan.Slice(0, 8));
+			else Unsafe.WriteUnaligned<ulong>(ref guid0, RNGCryptoRandom.LocalContainer.NextULong());
 
 			DateTime utcNow = DateTime.UtcNow;
 			Span<byte> ticksSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<DateTime, byte>(ref utcNow), 8);
