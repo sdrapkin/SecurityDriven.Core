@@ -141,10 +141,8 @@ namespace SecurityDriven.Core
 		}//NextInt64(minValue, maxValue)
 		#endregion
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static void ThrowNewArgumentOutOfRangeException(string paramName) => throw new ArgumentOutOfRangeException(paramName: paramName);
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static void ThrowNewArgumentNullException(string paramName) => throw new ArgumentNullException(paramName: paramName);
 	}//class CryptoRandom
 }//ns

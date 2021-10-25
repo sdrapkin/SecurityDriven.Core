@@ -61,7 +61,6 @@ namespace SecurityDriven.Core
 			NextBytes(Span<byte>.Empty); // trigger first _ctBuffer generation
 		}//ctor
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static void Action_Throw_SeedKeyOutOfRangeException() =>
 			throw new ArgumentOutOfRangeException(paramName: "seedKey", message: "Seed must be " + SEEDKEY_SIZE + " bytes long.");
 

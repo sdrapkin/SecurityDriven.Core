@@ -251,7 +251,6 @@ namespace SecurityDriven.Core
 			Unsafe.InitBlockUnaligned(startAddress: ref byteCacheLocalStart, value: 0, byteCount: (uint)(ulongsNeeded * sizeof(ulong)));
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override void Reseed(ReadOnlySpan<byte> seedKey) =>
 			throw new NotImplementedException(message: "Reseed is only implemented for seeded construction of " + nameof(CryptoRandom) + ".");
 
