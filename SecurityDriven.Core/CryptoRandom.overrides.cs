@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace SecurityDriven.Core
@@ -141,8 +142,10 @@ namespace SecurityDriven.Core
 		}//NextInt64(minValue, maxValue)
 		#endregion
 
+		[DoesNotReturn]
 		static void ThrowNewArgumentOutOfRangeException(string paramName) => throw new ArgumentOutOfRangeException(paramName: paramName);
 
+		[DoesNotReturn]
 		static void ThrowNewArgumentNullException(string paramName) => throw new ArgumentNullException(paramName: paramName);
 	}//class CryptoRandom
 }//ns

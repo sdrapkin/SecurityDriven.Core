@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -61,6 +62,7 @@ namespace SecurityDriven.Core
 			NextBytes(Span<byte>.Empty); // trigger first _ctBuffer generation
 		}//ctor
 
+		[DoesNotReturn]
 		static void Action_Throw_SeedKeyOutOfRangeException() =>
 			throw new ArgumentOutOfRangeException(paramName: "seedKey", message: "Seed must be " + SEEDKEY_SIZE + " bytes long.");
 

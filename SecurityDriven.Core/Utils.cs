@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -54,6 +55,7 @@ namespace SecurityDriven.Core
 		#endregion
 
 		#region non-public
+		[DoesNotReturn]
 		static void AsStruct_Throw_ArgumentOutOfRangeException<T>() =>
 			  throw new ArgumentOutOfRangeException(paramName: "span", message: typeof(T).FullName + " is larger than span.Length.");
 		#endregion

@@ -32,7 +32,7 @@ namespace SecurityDriven.Core.Tests
 #elif NETCOREAPP
 				"[NETCOREAPP] " 
 #endif
-				+ $"[{Environment.Version}] [{System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()}]";
+				+ $"[{Environment.Version}] [{System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}] [{System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()}]";
 			Console.WriteLine($"[{assembly.FullName}] file-version: [{expectedFileVersion}] product-version: [{expectedProductVersion}]");
 			Console.WriteLine(environment);
 		}//VersionCheck()

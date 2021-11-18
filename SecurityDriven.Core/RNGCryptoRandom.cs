@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -251,6 +252,7 @@ namespace SecurityDriven.Core
 			Unsafe.InitBlockUnaligned(startAddress: ref byteCacheLocalStart, value: 0, byteCount: (uint)(ulongsNeeded * sizeof(ulong)));
 		}
 
+		[DoesNotReturn]
 		public override void Reseed(ReadOnlySpan<byte> seedKey) =>
 			throw new NotImplementedException(message: "Reseed is only implemented for seeded construction of " + nameof(CryptoRandom) + ".");
 
