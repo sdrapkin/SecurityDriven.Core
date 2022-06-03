@@ -1,5 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-name: .NET 5/6 CI
+name: .NET 5/6/7 CI
 
 # Controls when the action will run. 
 on:
