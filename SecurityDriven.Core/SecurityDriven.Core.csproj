@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-		<PackageId>CryptoRandom</PackageId>
-		<TargetFrameworks>net6.0;net5.0</TargetFrameworks>
+	<PackageId>CryptoRandom</PackageId>
+	<TargetFrameworks>net6.0;net5.0</TargetFrameworks>
     <Authors>Stan Drapkin</Authors>
     <Company>https://SecurityDriven.net</Company>
     <Copyright>Copyright © $([System.DateTime]::UtcNow.ToString(yyyy)) Stan Drapkin</Copyright>
@@ -13,8 +13,8 @@
     <AssemblyOriginatorKeyFile>Inferno.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageIconUrl>https://avatars.githubusercontent.com/u/9137858?s=128</PackageIconUrl>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageIconUrl>https://avatars.githubusercontent.com/u/9137858?s=128</PackageIconUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>Major performance improvements.</PackageReleaseNotes>
     <Description>CryptoRandom: modern, fast, safe, cryptographically strong replacement for Random and RandomNumberGenerator.
 
@@ -23,7 +23,7 @@
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <PackageProjectUrl>https://github.com/sdrapkin/SecurityDriven.Core</PackageProjectUrl>
 		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-	</PropertyGroup>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>SecurityDriven.Core.xml</DocumentationFile>
