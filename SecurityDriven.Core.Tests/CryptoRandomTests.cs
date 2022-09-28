@@ -1076,7 +1076,7 @@ namespace SecurityDriven.Core.Tests
 
 			const int extra_count1 = 0;
 			const int extra_count2 = 0;
-			const int count = 40000 * 1;
+			const int count = 400_000 * 1;
 			const int totalCount = count + extra_count1 + extra_count2;
 
 			var q1 = Enumerable.Range(0, count).Select(i => decimalFn())
