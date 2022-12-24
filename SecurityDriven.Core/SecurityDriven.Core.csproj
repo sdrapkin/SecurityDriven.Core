@@ -8,8 +8,8 @@
     <Copyright>Copyright © $([System.DateTime]::UtcNow.ToString(yyyy)) Stan Drapkin</Copyright>
     <RepositoryUrl>https://github.com/sdrapkin/SecurityDriven.Core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>1.0.8</Version>
-    <SignAssembly>false</SignAssembly>
+    <Version>1.0.9</Version>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Inferno.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

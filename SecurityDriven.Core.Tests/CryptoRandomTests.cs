@@ -1315,6 +1315,19 @@ namespace SecurityDriven.Core.Tests
 			Assert.IsTrue(Enumerable.SequenceEqual(randomData1, randomData2));
 		}//Reseed()
 
+		[DataTestMethod]
+		public void ParallelGuid()
+		{
+			CryptoRandom cr = Create(derived: false, seeded: false);
+			const long ITER = 2_000_000;
+			Parallel.For(0L, ITER, i =>
+			{
+				cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid();
+				cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid();
+				cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid();
+				cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid(); cr.NextGuid();
+			});
+		}//ParallelGuid()
 	}//class CryptoRandomTests
 
 }//ns
