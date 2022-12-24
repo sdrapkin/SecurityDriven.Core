@@ -7,22 +7,21 @@ namespace SecurityDriven.Core
 {
 	internal static class FastGuid
 	{
-		const int GUIDS_PER_THREAD = 512; //keep it power-of-2
+		const int GUIDS_PER_THREAD = 256; //keep it power-of-2
 		const int GUID_SIZE_IN_BYTES = 16;
-		[ThreadStatic] static Container ts_data;
 
-		static Container LocalContainer
+		static class Inner
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => ts_data ??= new();
-		}
+			[ThreadStatic] public static Container s_container = new();
+		}// class Inner
+
 		sealed class Container
 		{
 			Guid[] _guids = GC.AllocateUninitializedArray<Guid>(GUIDS_PER_THREAD);
 			int _idx;
 
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			public Guid NextGuid()
+			public Guid NewGuid()
 			{
 				ref var guid0 = ref MemoryMarshal.GetArrayDataReference(_guids);
 				int idx = _idx++ & (GUIDS_PER_THREAD - 1);
@@ -39,6 +38,6 @@ namespace SecurityDriven.Core
 		}//class Container
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Guid NewGuid() => LocalContainer.NextGuid();
+		public static Guid NewGuid() => Inner.s_container.NewGuid();
 	}//class FastGuid
 }//ns
