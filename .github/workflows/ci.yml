@@ -1,5 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-name: .NET 5/6/7 CI
+name: .NET CI
 
 # Controls when the action will run. 
 on:
@@ -41,6 +41,10 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 7.0.x
+      - name: Install .NET 8
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
           include-prerelease: true
       - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
