@@ -16,7 +16,7 @@ namespace SecurityDriven.Core.Tests
 			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 			var expectedFileVersion = new Version(major, minor, build, 0);
 
-			Console.WriteLine(@"[fvi.ProductVersion: {fvi.ProductVersion ?? ""<NULL>""}]");
+			Console.WriteLine($"[fvi.ProductVersion: {fvi.ProductVersion}]");
 			Assert.IsTrue(new Version(fvi.FileVersion) == expectedFileVersion);
 			var expectedProductVersion = $"{major}.{minor}.{build}";
 
