@@ -31,6 +31,6 @@ jobs:
             8.0.x
             9.0.x
 
-      # run: dotnet restore
+      - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
       - run: dotnet test --configuration Release --no-restore --verbosity normal
