@@ -21,6 +21,10 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      - name: Install OpenSSL (Linux Only)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libssl-dev
+        
       - name: Install .NET 
         uses: actions/setup-dotnet@v4
         with:
