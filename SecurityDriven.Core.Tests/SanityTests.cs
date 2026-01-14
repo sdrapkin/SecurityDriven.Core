@@ -8,7 +8,7 @@ namespace SecurityDriven.Core.Tests
 	[TestClass]
 	public class SanityTests
 	{
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(1, 0, 9 /*, "alpha" */)]
 		public void VersionCheck(int major, int minor, int build, string releaseType = "")
 		{

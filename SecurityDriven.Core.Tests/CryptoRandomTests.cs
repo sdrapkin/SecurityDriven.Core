@@ -15,7 +15,7 @@ namespace SecurityDriven.Core.Tests
 	public class CryptoRandomTests
 	{
 		#region System.Random tests
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -23,12 +23,12 @@ namespace SecurityDriven.Core.Tests
 		public void InvalidArguments_Throws(bool derived, bool seeded)
 		{
 			Random r = Create(derived, seeded);
-			Assert.ThrowsException<ArgumentNullException>(() => r.NextBytes(null));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => r.Next(-1));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => r.Next(2, 1));
+			Assert.Throws<ArgumentNullException>(() => r.NextBytes(null));
+			Assert.Throws<ArgumentOutOfRangeException>(() => r.Next(-1));
+			Assert.Throws<ArgumentOutOfRangeException>(() => r.Next(2, 1));
 		}//InvalidArguments_Throws()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -52,7 +52,7 @@ namespace SecurityDriven.Core.Tests
 			Assert.IsTrue(1 == r.NextInt64(1, 2));
 		}//SmallRanges_ReturnsExpectedValue()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -84,7 +84,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//NextInt_AllValuesAreWithinSpecifiedRange()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -108,7 +108,7 @@ namespace SecurityDriven.Core.Tests
 			Assert.IsTrue(!hs.Contains(4));
 		}//Next_Int_AllValuesWithinSmallRangeHit()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -161,7 +161,7 @@ namespace SecurityDriven.Core.Tests
 			}//foreach
 		}//Next_IntInt_Next_IntInt_AllValuesAreWithinRange()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -185,7 +185,7 @@ namespace SecurityDriven.Core.Tests
 			Assert.IsTrue(!hs.Contains(4L));
 		}//Next_Long_AllValuesWithinSmallRangeHit()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -238,7 +238,7 @@ namespace SecurityDriven.Core.Tests
 			}//foreach
 		}//Next_LongLong_Next_IntInt_AllValuesAreWithinRange()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false)]
 		[DataRow(true)]
 		public void CtorWithSeed_SequenceIsRepeatable(bool derived)
@@ -269,7 +269,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//CtorWithSeed_SequenceIsRepeatable()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false)]
 		[DataRow(true)]
 		public void ExpectedValues(bool derived)
@@ -324,7 +324,7 @@ namespace SecurityDriven.Core.Tests
 			*/
 		}//ExpectedValues()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false)]
 		[DataRow(true)]
 		public void ExpectedValues_NextBytes(bool derived)
@@ -385,7 +385,7 @@ namespace SecurityDriven.Core.Tests
 			*/
 		}//ExpectedValues_NextBytes()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false)]
 		[DataRow(true)]
 		public void Sample(bool seeded)
@@ -398,7 +398,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//Sample()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -418,7 +418,7 @@ namespace SecurityDriven.Core.Tests
 			Assert.AreSame(CryptoRandom.Shared, Task.Run(() => CryptoRandom.Shared).Result);
 		}//Shared_IsSingleton()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false)]
 		[DataRow(true)]
 		public void RandomDistributionBug(bool seeded)
@@ -455,7 +455,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//RandomDistributionBug()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false)]
 		[DataRow(true)]
 		public void RandomDistributionBug_OddEven(bool seeded)
@@ -494,7 +494,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//RandomDistributionBug_OddEven()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false)]
 		[DataRow(true)]
 		public void SeededRandom_HashCheck(bool derived)
@@ -608,7 +608,7 @@ namespace SecurityDriven.Core.Tests
 		#endregion System.Random tests
 
 		#region RandomNumberGenerator tests
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(2048)]
 		[DataRow(65536)]
 		[DataRow(1048576)]
@@ -674,7 +674,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//ConcurrentAccess()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(400)]
 		[DataRow(65536)]
 		[DataRow(1048576)]
@@ -718,7 +718,7 @@ namespace SecurityDriven.Core.Tests
 			rng.NextBytes(new Span<byte>(rand, 0, 0));
 		}//GetBytes_Array_Offset_ZeroCount()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(10)]
 		[DataRow(256)]
 		[DataRow(65536)]
@@ -744,7 +744,7 @@ namespace SecurityDriven.Core.Tests
 			Assert.IsFalse(Enumerable.SequenceEqual(first, second));
 		}//DifferentSequential_Array()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(10)]
 		[DataRow(256)]
 		[DataRow(65536)]
@@ -775,17 +775,17 @@ namespace SecurityDriven.Core.Tests
 		public void NextBytes_InvalidArgs()
 		{
 			CryptoRandom rng = new CryptoRandom();
-			Assert.ThrowsException<ArgumentNullException>(() => rng.NextBytes(null));
+			Assert.Throws<ArgumentNullException>(() => rng.NextBytes(null));
 			rng.NextBytes(new Span<byte>(null, 0, 0)); // should not throw, and just do nothing
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), -1, 0)));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), 0, -1)));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), 0, 1)));
+			Assert.Throws<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), -1, 0)));
+			Assert.Throws<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), 0, -1)));
+			Assert.Throws<ArgumentOutOfRangeException>(() => rng.NextBytes(new Span<byte>(Array.Empty<byte>(), 0, 1)));
 		}//NextBytes_InvalidArgs()
 
 		[TestMethod]
 		public void NextBytes_Int_Negative()
 		{
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => CryptoRandom.Shared.NextBytes(-1));
+			Assert.Throws<ArgumentOutOfRangeException>(() => CryptoRandom.Shared.NextBytes(-1));
 		}//NextBytes_Int_Negative()
 
 		[TestMethod]
@@ -823,7 +823,7 @@ namespace SecurityDriven.Core.Tests
 			Assert.IsTrue(replacedValue, "Fill eventually wrote a different byte");
 		}//Fill_SpanLength1()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(1 << 1)]
 		[DataRow(1 << 4)]
 		[DataRow(1 << 16)]
@@ -837,7 +837,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//Next_PowersOfTwo()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow((1 << 1) + 1)]
 		[DataRow((1 << 4) + 1)]
 		[DataRow((1 << 16) + 1)]
@@ -944,7 +944,7 @@ namespace SecurityDriven.Core.Tests
 			VerifyDistribution(generated, 0.16);
 		}//GetInt32_1000d6()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(int.MinValue, int.MinValue + 3)]
 		[DataRow(-257, -129)]
 		[DataRow(-100, 5)]
@@ -1275,7 +1275,7 @@ namespace SecurityDriven.Core.Tests
 
 		#endregion
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -1290,7 +1290,7 @@ namespace SecurityDriven.Core.Tests
 			}
 		}//SingleByte()
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, false)]
 		[DataRow(false, true)]
 		[DataRow(true, false)]
@@ -1300,7 +1300,7 @@ namespace SecurityDriven.Core.Tests
 			CryptoRandom cr = Create(derived, seeded);
 			if (!seeded)
 			{
-				Assert.ThrowsException<NotImplementedException>(() => cr.Reseed(new byte[32]));
+				Assert.Throws<NotImplementedException>(() => cr.Reseed(new byte[32]));
 				return;
 			}
 
@@ -1315,7 +1315,7 @@ namespace SecurityDriven.Core.Tests
 			Assert.IsTrue(Enumerable.SequenceEqual(randomData1, randomData2));
 		}//Reseed()
 
-		[DataTestMethod]
+		[TestMethod]
 		public void ParallelGuid()
 		{
 			CryptoRandom cr = Create(derived: false, seeded: false);
