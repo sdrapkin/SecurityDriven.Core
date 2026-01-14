@@ -20,10 +20,10 @@ jobs:
     name: DOTNET CI
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         
       - name: Install .NET 
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             5.0.x
@@ -31,6 +31,7 @@ jobs:
             7.0.x
             8.0.x
             9.0.x
+            10.0.x
 
       - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
